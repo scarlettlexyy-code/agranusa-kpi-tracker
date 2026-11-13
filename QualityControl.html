@@ -1,0 +1,488 @@
+<!-- QualityControl.html — Agranusa KPI Tracker: Quality Control Inspection Log -->
+<div id="qc-root" class="flex flex-col w-full px-4 pb-24">
+
+  <!-- 1. Top Policy Notice Banner (Non-Penalti Luxury Standard) -->
+  <div class="w-full mt-3 mb-4 p-3.5 rounded-xl bg-slate-100 text-[#0b1c30] shadow-sm relative overflow-hidden border border-slate-200" id="qc-policy-banner">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-full bg-[#ffddb0] text-[#131b2e] flex items-center justify-center shrink-0">
+        <span class="material-symbols-rounded text-[18px]">verified_user</span>
+      </div>
+      <div class="flex-1 min-w-0 pr-6">
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <span class="font-title-sm text-[13px] text-[#0b1c30] font-bold">Catatan Mutu Villa</span>
+          <span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-label-xs text-[10px] font-bold">Non-Penalti</span>
+        </div>
+        <p class="font-body-sm text-[11px] text-slate-600 leading-relaxed">
+          Pembuatan laporan QC untuk dokumentasi standar luxury villa &amp; <span class="font-bold text-[#0b1c30]">TIDAK otomatis mengurangi poin KPI</span> rekan tim operasional.
+        </p>
+      </div>
+      <button aria-label="Tutup Catatan" class="absolute top-2.5 right-2.5 w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 active:scale-95 transition-all" onclick="document.getElementById('qc-policy-banner').classList.add('hidden')">
+        <span class="material-symbols-rounded text-[16px]">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. KPI Metric Strip -->
+  <div class="w-full mb-4 grid grid-cols-3 gap-2">
+    <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-0.5">
+        <span class="font-label-xs text-[10px] font-bold uppercase tracking-wider">Inspeksi</span>
+        <span class="material-symbols-rounded text-[15px] text-[#069669]">done_all</span>
+      </div>
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-md text-lg font-bold text-[#0b1c30]" id="qc-stat-total">12</span>
+        <span class="font-label-xs text-[10px] text-[#069669] font-bold">94% OK</span>
+      </div>
+      <span class="font-label-xs text-[9px] text-slate-400 truncate">Agranusa Area</span>
+    </div>
+
+    <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-0.5">
+        <span class="font-label-xs text-[10px] font-bold uppercase tracking-wider text-[#ba1a1a]">Menunggu</span>
+        <span class="w-2 h-2 rounded-full bg-[#ba1a1a] animate-pulse"></span>
+      </div>
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-md text-lg font-bold text-[#ba1a1a]" id="qc-stat-pending">04</span>
+        <span class="font-label-xs text-[10px] text-[#ba1a1a] font-bold">Perbaikan</span>
+      </div>
+      <span class="font-label-xs text-[9px] text-slate-400 truncate">Butuh Penugasan</span>
+    </div>
+
+    <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-0.5">
+        <span class="font-label-xs text-[10px] font-bold uppercase tracking-wider text-amber-700">Verified</span>
+        <span class="material-symbols-rounded text-[15px] text-amber-600">task_alt</span>
+      </div>
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-md text-lg font-bold text-[#0b1c30]" id="qc-stat-verified">03</span>
+        <span class="font-label-xs text-[10px] text-amber-700 font-bold">Selesai</span>
+      </div>
+      <span class="font-label-xs text-[9px] text-slate-400 truncate">Shift Terverifikasi</span>
+    </div>
+  </div>
+
+  <!-- 3. Primary Action Trigger: Buat Laporan QC -->
+  <div class="w-full mb-4">
+    <button class="w-full h-12 px-4 rounded-xl bg-[#131b2e] text-white flex items-center justify-between shadow-md active:scale-[0.98] transition-all hover:bg-slate-800" onclick="QCManager.openSheet(true)">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-white/10 text-[#ffddb0] flex items-center justify-center">
+          <span class="material-symbols-rounded text-[18px]">add_a_photo</span>
+        </div>
+        <div class="flex flex-col text-left">
+          <span class="font-title-sm text-[13px] text-white font-bold leading-tight">+ Buat Laporan QC</span>
+          <span class="font-label-xs text-[10px] text-white/70">Kamera Walkthrough / Form Cepat</span>
+        </div>
+      </div>
+      <span class="material-symbols-rounded text-[18px] text-[#ffddb0]">arrow_forward</span>
+    </button>
+  </div>
+
+  <!-- 4. Tab Filter Pill Strip -->
+  <div class="w-full mb-3 overflow-x-auto flex items-center gap-1.5 py-0.5">
+    <button class="qc-filter-btn px-3 py-1.5 rounded-full bg-[#131b2e] text-white font-label-md text-[11px] font-semibold shrink-0 shadow-sm" data-status="all">
+      Semua (<span id="qc-count-all">3</span>)
+    </button>
+    <button class="qc-filter-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-label-md text-[11px] font-semibold shrink-0" data-status="Menunggu Perbaikan">
+      Menunggu Perbaikan
+    </button>
+    <button class="qc-filter-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-label-md text-[11px] font-semibold shrink-0" data-status="Dalam Perbaikan">
+      Dalam Perbaikan
+    </button>
+    <button class="qc-filter-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-label-md text-[11px] font-semibold shrink-0" data-status="Selesai Diperbaiki">
+      Selesai
+    </button>
+  </div>
+
+  <!-- 5. Audit Cards Feed -->
+  <div class="flex flex-col gap-3" id="qc-card-feed">
+    <!-- Populated by QCManager -->
+  </div>
+
+  <!-- 6. Bottom Sheet Form: New QC Entry Modal -->
+  <div class="fixed inset-0 z-50 bg-[#0b1c30]/60 backdrop-blur-sm hidden flex flex-col justify-end transition-opacity duration-300" id="qc-bottom-sheet">
+    <div class="w-full max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl p-4 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300">
+      <!-- Pull handle for ergonomics -->
+      <div class="w-12 h-1 rounded-full bg-slate-300 mx-auto mb-2 cursor-pointer" onclick="QCManager.openSheet(false)"></div>
+      <!-- Sheet Header -->
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-[#131b2e] text-[#ffddb0] flex items-center justify-center">
+            <span class="material-symbols-rounded text-[18px]">fact_check</span>
+          </div>
+          <div>
+            <h2 class="font-title-sm text-[13px] text-[#0b1c30] font-bold">Catat Temuan QC Villa</h2>
+            <p class="font-label-xs text-[10px] text-slate-500">Walkthrough Standar Agranusa Signature</p>
+          </div>
+        </div>
+        <button class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-95" onclick="QCManager.openSheet(false)">
+          <span class="material-symbols-rounded text-[16px]">close</span>
+        </button>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="flex flex-col gap-3">
+        <!-- Target Villa Selector -->
+        <div>
+          <label class="block font-label-md text-[11px] text-[#0b1c30] font-semibold mb-1">Pilih Villa / Unit</label>
+          <select id="qc-form-villa" class="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[#0b1c30] font-body-sm text-[12px] outline-none">
+            <option value="Villa 06 (Family 3-Bedroom)">Villa 06 - Family 3-Bedroom</option>
+            <option value="Villa Suite 02 (VIP Honeymoon)">Villa Suite 02 - VIP Honeymoon</option>
+            <option value="Villa 01 (Deluxe Suite)">Villa 01 - Deluxe Suite</option>
+            <option value="Villa 03 (Royal Pool Villa)">Villa 03 - Royal Pool Villa</option>
+            <option value="Villa 04 (Garden Suite)">Villa 04 - Garden Suite</option>
+          </select>
+        </div>
+
+        <!-- Defect Category Dropdown -->
+        <div>
+          <label class="block font-label-md text-[11px] text-[#0b1c30] font-semibold mb-1">Kategori Ketidaksesuaian</label>
+          <select id="qc-form-category" class="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[#0b1c30] font-body-sm text-[12px] outline-none">
+            <option value="Kebersihan">Tidak Memenuhi Standar Kebersihan</option>
+            <option value="Finishing">Pekerjaan Tidak Rapi / Finishing Kurang</option>
+            <option value="Amenities">Amenities / Set Perlengkapan Kurang</option>
+            <option value="Engineering">Fasilitas Bermasalah (Engineering)</option>
+            <option value="Pool & Garden">Pool & Garden Standard Non-Compliance</option>
+          </select>
+        </div>
+
+        <!-- Photo Capture / Upload Area -->
+        <div>
+          <label class="block font-label-md text-[11px] text-[#0b1c30] font-semibold mb-1">Bukti Foto Temuan (Maks. 3 Foto)</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="h-20 rounded-xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 active:scale-95 transition-all" type="button" onclick="showToast('Kamera walkthrough siap mengambil gambar', 'info')">
+              <span class="material-symbols-rounded text-[22px] text-[#131b2e]">photo_camera</span>
+              <span class="font-label-xs text-[10px] mt-0.5 font-bold text-[#131b2e]">Ambil Foto</span>
+            </button>
+            <div class="relative h-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+              <span class="material-symbols-rounded text-slate-400 text-[24px]">image</span>
+              <span class="absolute bottom-1 right-1.5 px-1 py-0.2 rounded bg-black/60 text-white font-label-xs text-[8px]">Foto 1</span>
+            </div>
+            <div class="h-20 rounded-xl bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
+              <span class="material-symbols-rounded text-[18px] opacity-40">add</span>
+              <span class="font-label-xs text-[9px] opacity-60">Kosong</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes / Specific Instructions -->
+        <div>
+          <label class="block font-label-md text-[11px] text-[#0b1c30] font-semibold mb-1">Deskripsi & Arahan Koreksi</label>
+          <textarea id="qc-form-desc" class="w-full p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[#0b1c30] font-body-sm text-[12px] focus:outline-none resize-none" placeholder="Tuliskan temuan fisik villa & arahan perbaikan tim..." rows="2"></textarea>
+        </div>
+
+        <!-- PIC Assigner -->
+        <div>
+          <label class="block font-label-md text-[11px] text-[#0b1c30] font-semibold mb-1">Tugaskan Kepada Petugas Shift</label>
+          <select id="qc-form-pic" class="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[#0b1c30] font-body-sm text-[12px] outline-none">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <!-- Non-penalizing policy reminder badge -->
+        <div class="p-2 rounded-lg bg-slate-100 flex items-center gap-2 border border-slate-200">
+          <span class="material-symbols-rounded text-amber-700 text-[16px]">info</span>
+          <span class="font-label-xs text-[10px] text-slate-600">Temuan QC ini masuk sebagai checklist perbaikan tanpa pengurangan KPI tim.</span>
+        </div>
+
+        <!-- Thumb-Zone Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 mt-1">
+          <button class="w-full h-11 rounded-xl bg-slate-100 text-slate-700 font-title-sm text-[13px] font-semibold active:scale-95" onclick="QCManager.openSheet(false)" type="button">
+            Batal
+          </button>
+          <button class="w-full h-11 rounded-xl bg-[#131b2e] text-white font-title-sm text-[13px] font-semibold flex items-center justify-center gap-1.5 shadow-md active:scale-95 hover:bg-slate-800" onclick="QCManager.submitReport()" type="button" id="qc-btn-submit">
+            <span class="material-symbols-rounded text-[16px] text-[#ffddb0]">send</span>
+            Kirim Laporan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+window.QCManager = (function() {
+  let reports = [
+    {
+      id: 'QC-01',
+      villa: 'Villa 06',
+      tipeVilla: 'Family 3-Bedroom',
+      area: 'Pool Area',
+      waktuInspeksi: '09:42 WITA',
+      status: 'Menunggu Perbaikan',
+      judul: 'Pool Deck Licin & Daun Kering',
+      deskripsi: 'Residu lumut tipis di pinggir decking barat dekat sun lounger, berpotensi licin untuk tamu anak.',
+      picNama: 'Gede Rai',
+      picTipe: 'DW',
+      departemen: 'Housekeeping & Pool',
+      fotoCount: 2
+    },
+    {
+      id: 'QC-02',
+      villa: 'Villa Suite 02',
+      tipeVilla: 'VIP Honeymoon',
+      area: 'Master Bathroom',
+      waktuInspeksi: '10:15 WITA',
+      status: 'Dalam Perbaikan',
+      judul: 'Noda Kaca Shower & Partisi Cermin',
+      deskripsi: 'Bercak air kering (water spot) pada kaca partisi shower room dan cermin wastafel utama belum di-buffing.',
+      picNama: 'Wayan Arta',
+      picTipe: 'STAFF',
+      departemen: 'Senior Butler',
+      fotoCount: 1
+    },
+    {
+      id: 'QC-03',
+      villa: 'Villa 01',
+      tipeVilla: 'Deluxe Suite',
+      area: 'Living Pavilion',
+      waktuInspeksi: '08:30 WITA',
+      status: 'Selesai Diperbaiki',
+      judul: 'Penataan Amenities Kurang Lengkap',
+      deskripsi: 'Penyediaan set aromaterapi & artisan linen spray pada coffee table kini telah dilengkapi sesuai SOP.',
+      picNama: 'Ni Made Sunari',
+      picTipe: 'STAFF',
+      departemen: 'Housekeeping',
+      verifikator: 'Wayan Sudarma (Duty Lead)',
+      waktuVerifikasi: '10:05 WITA',
+      fotoCount: 1
+    }
+  ];
+
+  let currentFilter = 'all';
+
+  function init() {
+    setupFilterButtons();
+    populatePicDropdown();
+    renderFeed();
+    updateStats();
+  }
+
+  function setupFilterButtons() {
+    const btns = document.querySelectorAll('.qc-filter-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => {
+          b.className = 'qc-filter-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-label-md text-[11px] font-semibold shrink-0';
+        });
+        btn.className = 'qc-filter-btn px-3 py-1.5 rounded-full bg-[#131b2e] text-white font-label-md text-[11px] font-semibold shrink-0 shadow-sm';
+        currentFilter = btn.dataset.status;
+        renderFeed();
+      });
+    });
+  }
+
+  function populatePicDropdown() {
+    const select = document.getElementById('qc-form-pic');
+    if (!select) return;
+    const staff = (window.AppState && AppState.karyawan && AppState.karyawan.length > 0)
+      ? AppState.karyawan
+      : [
+          { ID: 'K001', Nama: 'Gede Rai', Tipe: 'DW', Departemen: 'Housekeeping' },
+          { ID: 'K002', Nama: 'Wayan Arta', Tipe: 'STAFF', Departemen: 'Butler Service' },
+          { ID: 'K003', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Engineering' }
+        ];
+
+    select.innerHTML = staff.map(s => 
+      `<option value="${s.ID}" data-name="${s.Nama}" data-type="${s.Tipe}">${s.Nama} — ${s.Departemen} (${s.Tipe})</option>`
+    ).join('');
+  }
+
+  function renderFeed() {
+    const container = document.getElementById('qc-card-feed');
+    if (!container) return;
+
+    const filtered = currentFilter === 'all' 
+      ? reports 
+      : reports.filter(r => r.status === currentFilter);
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="p-8 text-center bg-white rounded-xl border border-slate-200">
+          <span class="material-symbols-rounded text-slate-400 text-[36px]">task_alt</span>
+          <p class="font-title-sm text-[13px] text-slate-700 mt-2 font-semibold">Tidak ada temuan pada filter ini</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(r => {
+      let statusBadge = '';
+      if (r.status === 'Menunggu Perbaikan') {
+        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-red-100 text-red-800 font-label-xs text-[10px] font-bold uppercase shrink-0">Menunggu Perbaikan</span>`;
+      } else if (r.status === 'Dalam Perbaikan') {
+        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-label-xs text-[10px] font-bold uppercase shrink-0 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span> Dalam Perbaikan
+        </span>`;
+      } else {
+        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-label-xs text-[10px] font-bold uppercase shrink-0 flex items-center gap-1">
+          <span class="material-symbols-rounded text-[13px]">check_circle</span> Selesai Diperbaiki
+        </span>`;
+      }
+
+      const picInitials = r.picNama ? r.picNama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'QC';
+
+      return `
+        <div class="w-full bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 transition-all hover:shadow-md">
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-title-sm text-[13px] text-[#0b1c30] font-bold">${r.villa}</span>
+                <span class="font-label-xs text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${r.tipeVilla || 'Suite'}</span>
+              </div>
+              <span class="font-label-xs text-[11px] text-slate-400">Inspeksi: ${r.waktuInspeksi} • ${r.area}</span>
+            </div>
+            ${statusBadge}
+          </div>
+
+          <!-- Finding Detail -->
+          <div class="p-2.5 rounded-lg bg-slate-50 mb-2 border border-slate-100">
+            <div class="flex items-center gap-1 text-[#0b1c30] font-title-sm text-[13px] mb-0.5">
+              <span class="material-symbols-rounded text-amber-600 text-[16px]">warning</span>
+              <span class="font-semibold">${r.judul}</span>
+            </div>
+            <p class="font-body-sm text-[11px] text-slate-600 leading-relaxed">${r.deskripsi}</p>
+          </div>
+
+          <!-- Footer Action & PIC -->
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-7 h-7 rounded-full bg-slate-100 text-[#0b1c30] flex items-center justify-center text-[10px] font-bold shrink-0 border border-slate-200">
+                ${picInitials}
+              </div>
+              <div class="flex flex-col min-w-0">
+                <div class="flex items-center gap-1">
+                  <span class="font-label-md text-[11px] text-[#0b1c30] font-semibold truncate">${r.picNama}</span>
+                  <span class="px-1 py-0.2 rounded bg-slate-100 text-slate-600 font-label-xs text-[9px] font-bold">${r.picTipe}</span>
+                </div>
+                <span class="font-label-xs text-[10px] text-slate-400 truncate">${r.departemen}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              ${r.status !== 'Selesai Diperbaiki' ? `
+                <button class="px-2.5 py-1 rounded-lg bg-[#131b2e] text-white font-label-md text-[11px] font-semibold active:scale-95 flex items-center gap-1" onclick="QCManager.markResolved('${r.id}')">
+                  <span class="material-symbols-rounded text-[14px] text-[#ffddb0]">check</span>
+                  Selesaikan
+                </button>
+              ` : `
+                <span class="font-label-xs text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                  <span class="material-symbols-rounded text-[13px]">verified</span> Terverifikasi
+                </span>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updateStats() {
+    const totalEl = document.getElementById('qc-stat-total');
+    const pendingEl = document.getElementById('qc-stat-pending');
+    const verifiedEl = document.getElementById('qc-stat-verified');
+    const countAllEl = document.getElementById('qc-count-all');
+
+    const total = reports.length;
+    const pending = reports.filter(r => r.status === 'Menunggu Perbaikan').length;
+    const verified = reports.filter(r => r.status === 'Selesai Diperbaiki').length;
+
+    if (totalEl) totalEl.textContent = total;
+    if (pendingEl) pendingEl.textContent = pending < 10 ? '0' + pending : pending;
+    if (verifiedEl) verifiedEl.textContent = verified < 10 ? '0' + verified : verified;
+    if (countAllEl) countAllEl.textContent = total;
+  }
+
+  function openSheet(show) {
+    const sheet = document.getElementById('qc-bottom-sheet');
+    if (show) {
+      sheet.classList.remove('hidden');
+    } else {
+      sheet.classList.add('hidden');
+    }
+  }
+
+  async function submitReport() {
+    const villa = document.getElementById('qc-form-villa').value;
+    const category = document.getElementById('qc-form-category').value;
+    const desc = document.getElementById('qc-form-desc').value.trim();
+    const picSelect = document.getElementById('qc-form-pic');
+    const picOpt = picSelect.selectedOptions[0];
+
+    if (!desc) {
+      if (window.showToast) showToast('Deskripsi temuan wajib diisi', 'error');
+      return;
+    }
+
+    const newReport = {
+      id: 'QC-' + (reports.length + 1),
+      villa: villa.split(' (')[0],
+      tipeVilla: villa.includes('(') ? villa.split('(')[1].replace(')', '') : 'Suite',
+      area: category,
+      waktuInspeksi: 'Sekarang (WITA)',
+      status: 'Menunggu Perbaikan',
+      judul: 'Temuan: ' + category,
+      deskripsi: desc,
+      picNama: picOpt ? picOpt.dataset.name : 'Petugas Shift',
+      picTipe: picOpt ? picOpt.dataset.type : 'STAFF',
+      departemen: 'Operasional',
+      fotoCount: 1
+    };
+
+    reports.unshift(newReport);
+    openSheet(false);
+    renderFeed();
+    updateStats();
+    if (window.showToast) showToast('Laporan QC berhasil dibuat!', 'success');
+
+    // Trigger GAS backend in background
+    if (typeof gasRun === 'function') {
+      try {
+        await gasRun('createQCReport', {
+          villa: newReport.villa,
+          tipeVilla: newReport.tipeVilla,
+          area: newReport.area,
+          kategori: category,
+          deskripsi: desc,
+          picId: picSelect.value,
+          picNama: newReport.picNama
+        });
+      } catch (err) {
+        console.warn('Backend sync error:', err);
+      }
+    }
+  }
+
+  function markResolved(id) {
+    const item = reports.find(r => r.id === id);
+    if (item) {
+      item.status = 'Selesai Diperbaiki';
+      renderFeed();
+      updateStats();
+      if (window.showToast) showToast(`Temuan ${item.villa} telah ditandai selesai!`, 'success');
+
+      if (typeof gasRun === 'function') {
+        gasRun('updateQCStatus', id, 'Selesai Diperbaiki', window.AppState?.currentUser?.nama || 'Duty Leader')
+          .catch(err => console.warn(err));
+      }
+    }
+  }
+
+  return {
+    init,
+    openSheet,
+    submitReport,
+    markResolved
+  };
+})();
+
+window.renderQC = function() {
+  const root = document.getElementById('qc-root');
+  return root ? root.outerHTML : '<div class="p-4 text-center">Memuat laporan QC...</div>';
+};
+
+window.initQc = function() {
+  QCManager.init();
+};
+</script>

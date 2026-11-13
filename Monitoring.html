@@ -1,0 +1,652 @@
+<!-- Monitoring.html — Agranusa KPI Tracker -->
+<!-- Dipanggil oleh router via renderMonitoring() -->
+<div id="monitoring-root" class="flex flex-col min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════
+       STAT RIBBON 3-COL
+  ══════════════════════════════════════════ -->
+  <div id="mon-stat-ribbon" class="grid grid-cols-3 gap-0 bg-[#131b2e] text-white px-0 pt-4 pb-3">
+    <!-- Tugas Input -->
+    <div class="flex flex-col items-center px-2 border-r border-white/10">
+      <span class="material-symbols-outlined text-[#ffddb0] text-xl">assignment_turned_in</span>
+      <span id="mon-stat-input" class="font-bold text-lg leading-tight mt-0.5">0/0</span>
+      <span class="text-[10px] text-white/60 text-center leading-tight mt-0.5">Tugas Input</span>
+    </div>
+    <!-- Review -->
+    <div class="flex flex-col items-center px-2 border-r border-white/10">
+      <span class="material-symbols-outlined text-amber-400 text-xl">pending_actions</span>
+      <span id="mon-stat-review" class="font-bold text-lg leading-tight mt-0.5">0</span>
+      <span class="text-[10px] text-white/60 text-center leading-tight mt-0.5">Belum Dinilai</span>
+      <span id="mon-stat-review-pulse" class="hidden mt-1 h-1.5 w-8 rounded-full bg-amber-400 animate-pulse"></span>
+    </div>
+    <!-- Poin Shift -->
+    <div class="flex flex-col items-center px-2">
+      <span class="material-symbols-outlined text-[#069669] text-xl">emoji_events</span>
+      <span id="mon-stat-poin" class="font-bold text-lg leading-tight mt-0.5">+0</span>
+      <span class="text-[10px] text-white/60 text-center leading-tight mt-0.5">Poin Shift</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FILTER BAR
+  ══════════════════════════════════════════ -->
+  <div class="bg-[#131b2e] pb-3 px-4">
+    <!-- Tanggal/Shift info + Tune -->
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[#ffddb0] text-base">calendar_today</span>
+        <span id="mon-date-label" class="text-white/80 text-sm font-medium"></span>
+        <span id="mon-shift-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ffddb0] text-[#131b2e]"></span>
+      </div>
+      <button onclick="MonState.openTuneDialog()" class="flex items-center gap-1 text-white/60 text-xs hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-base">tune</span>
+        Filter
+      </button>
+    </div>
+    <!-- Scrollable filter chips -->
+    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1" id="mon-filter-chips">
+      <!-- chips rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TASK CARD FEED
+  ══════════════════════════════════════════ -->
+  <div id="mon-card-feed" class="flex flex-col gap-3 p-4 pb-32">
+    <!-- Loading skeleton -->
+    <div id="mon-loading" class="flex flex-col gap-3">
+      <div class="h-28 rounded-2xl bg-gray-200 animate-pulse"></div>
+      <div class="h-28 rounded-2xl bg-gray-200 animate-pulse"></div>
+      <div class="h-28 rounded-2xl bg-gray-200 animate-pulse"></div>
+    </div>
+    <!-- Cards injected here -->
+  </div>
+
+  <!-- Empty state -->
+  <div id="mon-empty" class="hidden flex-col items-center justify-center py-20 text-gray-400">
+    <span class="material-symbols-outlined text-5xl mb-3">inventory_2</span>
+    <p class="text-sm font-medium">Tidak ada tugas ditemukan</p>
+    <p class="text-xs mt-1">Coba ubah filter atau tambah penugasan</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       HANDOVER BANNER (muncul jika shift mendekati akhir)
+  ══════════════════════════════════════════ -->
+  <div id="mon-handover-banner" class="hidden fixed bottom-0 left-0 right-0 bg-[#131b2e] border-t-2 border-[#ffddb0] px-4 py-3 z-30">
+    <div class="flex items-center justify-between gap-2">
+      <div>
+        <p class="text-[#ffddb0] text-xs font-bold uppercase tracking-wide">Operan Shift</p>
+        <p id="mon-handover-text" class="text-white text-sm font-semibold"></p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="MonState.kirimWA()" class="flex items-center gap-1 bg-green-600 text-white text-xs font-semibold px-3 py-2 rounded-xl active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-sm">chat</span>
+          Kirim WA
+        </button>
+        <button onclick="MonState.confirmLockShift()" class="flex items-center gap-1 bg-[#ffddb0] text-[#131b2e] text-xs font-bold px-3 py-2 rounded-xl active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-sm">lock</span>
+          Kunci Shift
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCORING BOTTOM DRAWER
+  ══════════════════════════════════════════ -->
+  <!-- Overlay -->
+  <div id="mon-drawer-overlay" class="hidden fixed inset-0 bg-black/40 z-40 backdrop-blur-[2px]" onclick="MonState.closeDrawer()"></div>
+
+  <!-- Drawer -->
+  <div id="mon-scoring-drawer"
+    class="fixed bottom-0 left-0 right-0 bg-white z-50 rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 ease-out max-h-[92vh] overflow-y-auto">
+
+    <!-- Handle -->
+    <div class="flex justify-center pt-3 pb-1">
+      <div class="w-10 h-1 rounded-full bg-gray-300"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between px-5 py-3 border-b border-gray-100">
+      <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Input Hasil Tugas</p>
+        <p id="drawer-karyawan-name" class="font-bold text-[#131b2e] text-base mt-0.5"></p>
+        <p id="drawer-tugas-name" class="text-sm text-gray-500 mt-0.5"></p>
+      </div>
+      <button onclick="MonState.closeDrawer()" class="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+        <span class="material-symbols-outlined text-gray-400 text-xl">close</span>
+      </button>
+    </div>
+
+    <!-- Radio Options -->
+    <div class="px-5 py-4 flex flex-col gap-3">
+      <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Hasil Penilaian</p>
+
+      <!-- Selesai -->
+      <label id="radio-selesai-label"
+        class="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all hover:border-[#069669]/40 has-[:checked]:border-[#069669] has-[:checked]:bg-[#069669]/5">
+        <input type="radio" name="mon-hasil" value="Selesai" class="sr-only" onchange="MonState.onHasilChange(this)">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[#069669]/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#069669] text-lg">check_circle</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm text-gray-800">Selesai Standar</p>
+          <p class="text-xs text-gray-500">Tugas selesai sesuai SOP</p>
+        </div>
+        <span class="text-[#069669] font-bold text-sm">+10</span>
+      </label>
+
+      <!-- Lanjut -->
+      <label id="radio-lanjut-label"
+        class="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all hover:border-amber-400/40 has-[:checked]:border-amber-400 has-[:checked]:bg-amber-50">
+        <input type="radio" name="mon-hasil" value="Lanjut" class="sr-only" onchange="MonState.onHasilChange(this)">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+          <span class="material-symbols-outlined text-amber-600 text-lg">schedule</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm text-gray-800">Lanjut Shift Berikutnya</p>
+          <p class="text-xs text-gray-500">Belum selesai, dilanjutkan</p>
+        </div>
+        <span class="text-amber-600 font-bold text-sm">+8</span>
+      </label>
+
+      <!-- Tidak Dikerjakan -->
+      <label id="radio-batal-label"
+        class="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all hover:border-[#ba1a1a]/30 has-[:checked]:border-[#ba1a1a] has-[:checked]:bg-[#ba1a1a]/5">
+        <input type="radio" name="mon-hasil" value="Batal" class="sr-only" onchange="MonState.onHasilChange(this)">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#ba1a1a] text-lg">cancel</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm text-gray-800">Tidak Dikerjakan</p>
+          <p class="text-xs text-gray-500">Tugas dibatalkan</p>
+        </div>
+        <span class="text-[#ba1a1a] font-bold text-sm">−10</span>
+      </label>
+
+      <!-- Conditional: Alasan -->
+      <div id="drawer-alasan-section" class="hidden mt-1 flex flex-col gap-3 bg-gray-50 rounded-2xl p-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 block">Alasan</label>
+          <select id="drawer-alasan-select" class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#131b2e]/20 appearance-none">
+            <option value="">Pilih alasan...</option>
+            <option value="Barang Habis/Menunggu Pasokan">Barang Habis / Menunggu Pasokan</option>
+            <option value="Waktu Dialihkan Urgent">Waktu Dialihkan Urgent</option>
+            <option value="Akses DND">Akses DND</option>
+            <option value="Kendala Cuaca">Kendala Cuaca</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 block">Catatan Tambahan</label>
+          <textarea id="drawer-catatan" rows="3"
+            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#131b2e]/20 resize-none"
+            placeholder="Deskripsi singkat situasi..."></textarea>
+        </div>
+      </div>
+
+      <!-- Simpan Button -->
+      <button id="drawer-simpan-btn" onclick="MonState.simpanHasil()" disabled
+        class="mt-2 w-full bg-[#131b2e] text-white font-bold py-3.5 rounded-2xl text-sm active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-base">save</span>
+        Simpan Hasil
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CONFIRM LOCK SHIFT DIALOG
+  ══════════════════════════════════════════ -->
+  <div id="mon-lock-dialog" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="flex justify-center mb-4">
+        <div class="w-14 h-14 rounded-full bg-[#131b2e] flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#ffddb0] text-3xl">lock</span>
+        </div>
+      </div>
+      <h3 class="text-center font-bold text-[#131b2e] text-lg">Kunci Shift?</h3>
+      <p class="text-center text-gray-500 text-sm mt-2">Data shift akan dikunci dan tidak bisa diubah setelah ini. Pastikan semua tugas sudah dinilai.</p>
+      <div id="mon-lock-warning" class="hidden mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-800 text-xs text-center">
+        ⚠️ Masih ada <span id="mon-lock-unrated"></span> tugas belum dinilai!
+      </div>
+      <div class="flex gap-3 mt-5">
+        <button onclick="MonState.closeLockDialog()" class="flex-1 py-3 rounded-2xl border-2 border-gray-200 font-semibold text-sm text-gray-700 active:bg-gray-50 transition-colors">
+          Batal
+        </button>
+        <button onclick="MonState.doLockShift()" class="flex-1 py-3 rounded-2xl bg-[#131b2e] text-white font-bold text-sm active:scale-95 transition-all">
+          Ya, Kunci
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="mon-toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[60] bg-[#131b2e] text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 max-w-xs">
+    <span class="material-symbols-outlined text-base text-[#069669]">check_circle</span>
+    <span id="mon-toast-text"></span>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     MONITORING MODULE JS
+══════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── STATE ── */
+  const MonState = window.MonState = {
+    tasks: [],
+    filtered: [],
+    activeFilter: 'Semua',
+    activeTask: null,
+    filters: [
+      { label: 'Semua', key: 'Semua' },
+      { label: 'Belum Dinilai', key: 'Belum Dinilai' },
+      { label: 'Lanjut +8', key: 'Lanjut' },
+      { label: 'Selesai +10', key: 'Selesai' },
+      { label: 'Batal −10', key: 'Batal' },
+    ],
+
+    /* ── Init ── */
+    init() {
+      this.renderDateLabel();
+      this.renderFilterChips();
+      this.loadTasks();
+      this.checkHandoverTime();
+    },
+
+    renderDateLabel() {
+      const tanggal = (window.AppState && AppState.tanggal) || new Date().toISOString().slice(0, 10);
+      const shift = (window.AppState && AppState.shift) || 'Pagi';
+      const shiftIcon = { Pagi: '☀️', Sore: '🌆', Malam: '🌙' }[shift] || '';
+      const d = new Date(tanggal);
+      const opts = { weekday: 'short', day: 'numeric', month: 'short' };
+      document.getElementById('mon-date-label').textContent =
+        d.toLocaleDateString('id-ID', opts);
+      document.getElementById('mon-shift-badge').textContent = shiftIcon + ' ' + shift;
+    },
+
+    renderFilterChips() {
+      const container = document.getElementById('mon-filter-chips');
+      container.innerHTML = this.filters.map(f => `
+        <button onclick="MonState.setFilter('${f.key}')"
+          id="chip-${f.key.replace(/\s/g,'-')}"
+          class="mon-filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border
+                 ${f.key === this.activeFilter
+                   ? 'bg-[#ffddb0] text-[#131b2e] border-[#ffddb0]'
+                   : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}">
+          ${f.label}
+        </button>
+      `).join('');
+    },
+
+    setFilter(key) {
+      this.activeFilter = key;
+      this.renderFilterChips();
+      this.applyFilter();
+    },
+
+    /* ── Data Loading ── */
+    loadTasks() {
+      const tanggal = (window.AppState && AppState.tanggal) || new Date().toISOString().slice(0, 10);
+      const shift = (window.AppState && AppState.shift) || 'Pagi';
+      document.getElementById('mon-loading').classList.remove('hidden');
+
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => MonState.onTasksLoaded(res))
+          .withFailureHandler(err => MonState.onLoadError(err))
+          .getShiftTasks(tanggal, shift);
+      } else {
+        // Demo data for local preview
+        setTimeout(() => MonState.onTasksLoaded(MonState.demoData()), 600);
+      }
+    },
+
+    onTasksLoaded(res) {
+      document.getElementById('mon-loading').classList.add('hidden');
+      const data = res && res.success ? res.data : (Array.isArray(res) ? res : []);
+      this.tasks = data;
+      this.updateStatRibbon();
+      this.applyFilter();
+    },
+
+    onLoadError(err) {
+      document.getElementById('mon-loading').classList.add('hidden');
+      this.showToast('Gagal memuat data: ' + (err.message || err), true);
+    },
+
+    updateStatRibbon() {
+      const total = this.tasks.length;
+      const dinilai = this.tasks.filter(t => t.status !== 'Belum Dinilai').length;
+      const belumDinilai = this.tasks.filter(t => t.status === 'Belum Dinilai').length;
+      const poin = this.tasks.reduce((s, t) => s + (Number(t.poinDiperoleh) || 0), 0);
+
+      document.getElementById('mon-stat-input').textContent = dinilai + '/' + total;
+      document.getElementById('mon-stat-review').textContent = belumDinilai;
+      document.getElementById('mon-stat-poin').textContent = (poin >= 0 ? '+' : '') + poin;
+
+      const pulse = document.getElementById('mon-stat-review-pulse');
+      if (belumDinilai > 0) pulse.classList.remove('hidden'); else pulse.classList.add('hidden');
+    },
+
+    applyFilter() {
+      const sortOrder = { 'Belum Dinilai': 0, 'Lanjut': 1, 'Selesai': 2, 'Batal': 3 };
+      let list = [...this.tasks].sort((a, b) =>
+        (sortOrder[a.status] ?? 9) - (sortOrder[b.status] ?? 9)
+      );
+      if (this.activeFilter !== 'Semua') {
+        list = list.filter(t => t.status === this.activeFilter);
+      }
+      this.filtered = list;
+      this.renderCards();
+    },
+
+    /* ── Card Rendering ── */
+    renderCards() {
+      const feed = document.getElementById('mon-card-feed');
+      const empty = document.getElementById('mon-empty');
+      // Remove old cards (keep loading & empty divs)
+      feed.querySelectorAll('.task-card').forEach(el => el.remove());
+
+      if (this.filtered.length === 0) {
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      this.filtered.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'task-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col gap-2';
+        card.innerHTML = this.buildCardHTML(task);
+        feed.appendChild(card);
+      });
+    },
+
+    buildCardHTML(t) {
+      const statusConfig = {
+        'Belum Dinilai': { color: 'bg-amber-100 text-amber-700', icon: 'pending' },
+        'Lanjut':        { color: 'bg-blue-100 text-blue-700', icon: 'schedule' },
+        'Selesai':       { color: 'bg-green-100 text-[#069669]', icon: 'check_circle' },
+        'Batal':         { color: 'bg-red-100 text-[#ba1a1a]', icon: 'cancel' },
+      };
+      const sc = statusConfig[t.status] || statusConfig['Belum Dinilai'];
+      const initials = this.getInitials(t.namaKaryawan || '');
+      const poinText = t.status === 'Selesai' ? '+10' : t.status === 'Lanjut' ? '+8' : t.status === 'Batal' ? '−10' : '';
+      const poinColor = t.status === 'Selesai' ? 'text-[#069669]' : t.status === 'Lanjut' ? 'text-amber-600' : 'text-[#ba1a1a]';
+      const tipeBadge = t.tipeKaryawan === 'DW'
+        ? '<span class="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-bold rounded">DW</span>'
+        : '<span class="px-1.5 py-0.5 bg-sky-100 text-sky-700 text-[9px] font-bold rounded">STAFF</span>';
+
+      const alasanBlock = (t.status === 'Lanjut' || t.status === 'Batal') && t.alasan
+        ? `<div class="flex items-start gap-1.5 bg-gray-50 rounded-xl px-3 py-2 mt-1">
+             <span class="material-symbols-outlined text-gray-400 text-sm mt-0.5">info</span>
+             <span class="text-xs text-gray-600">${this.esc(t.alasan)}</span>
+           </div>` : '';
+
+      const fotoBlock = t.fotoCount
+        ? `<div class="flex items-center gap-1 text-xs text-gray-400">
+             <span class="material-symbols-outlined text-sm">photo_camera</span>
+             ${t.fotoCount} foto
+           </div>` : '';
+
+      const actionBtn = t.status === 'Belum Dinilai'
+        ? `<button onclick="MonState.openDrawer(${JSON.stringify(t).replace(/"/g,'&quot;')})"
+                   class="flex-shrink-0 bg-[#131b2e] text-white text-xs font-bold px-4 py-2 rounded-xl active:scale-95 transition-all flex items-center gap-1.5">
+             <span class="material-symbols-outlined text-sm">edit_note</span>
+             Input Hasil
+           </button>`
+        : `<button onclick="MonState.openDrawer(${JSON.stringify(t).replace(/"/g,'&quot;')})"
+                   class="flex-shrink-0 bg-gray-100 text-gray-700 text-xs font-semibold px-4 py-2 rounded-xl active:scale-95 transition-all flex items-center gap-1.5">
+             <span class="material-symbols-outlined text-sm">edit</span>
+             Edit Catatan
+           </button>`;
+
+      return `
+        <div class="flex items-start gap-3">
+          <!-- Avatar -->
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-[#131b2e] flex items-center justify-center">
+            <span class="text-[10px] font-bold text-[#ffddb0]">${initials}</span>
+          </div>
+          <!-- Name + badge + time -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-semibold text-sm text-gray-900 truncate">${this.esc(t.namaKaryawan || '-')}</span>
+              ${tipeBadge}
+            </div>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="text-xs text-gray-400">${this.esc(t.jamKerja || t.waktuMulai || '-')}</span>
+              <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+              <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${sc.color}">
+                <span class="material-symbols-outlined text-[11px]">${sc.icon}</span>
+                ${this.esc(t.status)}
+              </span>
+              ${poinText ? `<span class="text-xs font-bold ${poinColor}">${poinText}pts</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <!-- Task name + villa -->
+        <div class="flex items-start gap-2 ml-12">
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-800 leading-tight">${this.esc(t.namaTugas || '-')}</p>
+            <div class="flex items-center gap-1 mt-0.5">
+              <span class="material-symbols-outlined text-gray-400 text-sm">villa</span>
+              <span class="text-xs text-gray-500">${this.esc(t.villa || '-')}</span>
+              ${fotoBlock}
+            </div>
+          </div>
+          ${actionBtn}
+        </div>
+        ${alasanBlock}
+      `;
+    },
+
+    /* ── Scoring Drawer ── */
+    openDrawer(task) {
+      this.activeTask = task;
+      document.getElementById('drawer-karyawan-name').textContent = task.namaKaryawan || '-';
+      document.getElementById('drawer-tugas-name').textContent = task.namaTugas || '-';
+      // Reset form
+      document.querySelectorAll('input[name="mon-hasil"]').forEach(r => r.checked = false);
+      document.getElementById('drawer-alasan-section').classList.add('hidden');
+      document.getElementById('drawer-alasan-select').value = '';
+      document.getElementById('drawer-catatan').value = '';
+      document.getElementById('drawer-simpan-btn').disabled = true;
+
+      // Pre-fill if editing
+      if (task.status !== 'Belum Dinilai') {
+        const radio = document.querySelector(`input[name="mon-hasil"][value="${task.status}"]`);
+        if (radio) { radio.checked = true; this.onHasilChange(radio); }
+        if (task.alasan) {
+          document.getElementById('drawer-alasan-select').value = task.alasan;
+          document.getElementById('drawer-catatan').value = task.catatan || '';
+        }
+      }
+
+      // Show drawer
+      document.getElementById('mon-drawer-overlay').classList.remove('hidden');
+      const drawer = document.getElementById('mon-scoring-drawer');
+      drawer.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        drawer.style.transform = 'translateY(0)';
+      });
+    },
+
+    closeDrawer() {
+      const drawer = document.getElementById('mon-scoring-drawer');
+      drawer.style.transform = 'translateY(100%)';
+      document.getElementById('mon-drawer-overlay').classList.add('hidden');
+      setTimeout(() => drawer.classList.add('hidden'), 300);
+    },
+
+    onHasilChange(radio) {
+      const val = radio.value;
+      const needAlasan = val === 'Lanjut' || val === 'Batal';
+      document.getElementById('drawer-alasan-section').classList.toggle('hidden', !needAlasan);
+      document.getElementById('drawer-simpan-btn').disabled = false;
+    },
+
+    simpanHasil() {
+      const task = this.activeTask;
+      if (!task) return;
+      const radio = document.querySelector('input[name="mon-hasil"]:checked');
+      if (!radio) return;
+
+      const status = radio.value;
+      const poinMap = { Selesai: 10, Lanjut: 8, Batal: -10 };
+      const poin = poinMap[status] || 0;
+      const alasan = document.getElementById('drawer-alasan-select').value;
+      const catatan = document.getElementById('drawer-catatan').value;
+      const fullAlasan = alasan + (catatan ? ' — ' + catatan : '');
+
+      const btn = document.getElementById('drawer-simpan-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">refresh</span> Menyimpan...';
+
+      const done = () => {
+        MonState.closeDrawer();
+        MonState.showToast('Hasil berhasil disimpan!');
+        MonState.loadTasks();
+      };
+      const fail = (err) => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-base">save</span> Simpan Hasil';
+        MonState.showToast('Gagal: ' + (err.message || err), true);
+      };
+
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(done)
+          .withFailureHandler(fail)
+          .updateTugasStatus(task.id, status, poin, fullAlasan, 'Leader Shift');
+      } else {
+        setTimeout(done, 800);
+      }
+    },
+
+    /* ── Handover Banner ── */
+    checkHandoverTime() {
+      const shift = (window.AppState && AppState.shift) || 'Pagi';
+      const endHours = { Pagi: 15, Sore: 23, Malam: 7 };
+      const nextShift = { Pagi: 'Sore', Sore: 'Malam', Malam: 'Pagi' };
+      const now = new Date();
+      const endH = endHours[shift];
+      const remaining = endH - now.getHours();
+      // Show banner if within 1 hour of shift end
+      if (remaining >= 0 && remaining <= 1) {
+        document.getElementById('mon-handover-text').textContent =
+          shift + ' → ' + nextShift[shift];
+        document.getElementById('mon-handover-banner').classList.remove('hidden');
+      }
+    },
+
+    kirimWA() {
+      const tanggal = (window.AppState && AppState.tanggal) || new Date().toISOString().slice(0,10);
+      const shift = (window.AppState && AppState.shift) || 'Pagi';
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            const text = encodeURIComponent(res.data || res);
+            window.open('https://wa.me/?text=' + text, '_blank');
+          })
+          .getShiftSummaryText(tanggal, shift);
+      } else {
+        this.showToast('Preview WA tidak tersedia di mode lokal');
+      }
+    },
+
+    confirmLockShift() {
+      const unrated = this.tasks.filter(t => t.status === 'Belum Dinilai').length;
+      const warn = document.getElementById('mon-lock-warning');
+      if (unrated > 0) {
+        warn.classList.remove('hidden');
+        document.getElementById('mon-lock-unrated').textContent = unrated;
+      } else {
+        warn.classList.add('hidden');
+      }
+      document.getElementById('mon-lock-dialog').classList.remove('hidden');
+    },
+
+    closeLockDialog() {
+      document.getElementById('mon-lock-dialog').classList.add('hidden');
+    },
+
+    doLockShift() {
+      const tanggal = (window.AppState && AppState.tanggal) || new Date().toISOString().slice(0,10);
+      const shift = (window.AppState && AppState.shift) || 'Pagi';
+      this.closeLockDialog();
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(() => MonState.showToast('Shift dikunci!'))
+          .withFailureHandler(err => MonState.showToast('Gagal: ' + (err.message || err), true))
+          .lockShift(tanggal, shift, 'Leader Shift');
+      } else {
+        this.showToast('Shift dikunci (demo)');
+      }
+    },
+
+    openTuneDialog() {
+      this.showToast('Filter lanjutan segera hadir');
+    },
+
+    /* ── Utilities ── */
+    showToast(msg, isError = false) {
+      const toast = document.getElementById('mon-toast');
+      const icon = toast.querySelector('.material-symbols-outlined');
+      document.getElementById('mon-toast-text').textContent = msg;
+      icon.textContent = isError ? 'error' : 'check_circle';
+      icon.className = 'material-symbols-outlined text-base ' + (isError ? 'text-[#ba1a1a]' : 'text-[#069669]');
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(MonState._toastTimer);
+      MonState._toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    },
+
+    getInitials(name) {
+      return name.split(' ').slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+    },
+
+    esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    },
+
+    /* ── Demo Data ── */
+    demoData() {
+      return {
+        success: true,
+        data: [
+          { id: 't1', namaKaryawan: 'Kadek Sari', tipeKaryawan: 'STAFF', namaTugas: 'Turndown Service', villa: 'Villa Angin', status: 'Belum Dinilai', waktuMulai: '07:00', departemen: 'Housekeeping', fotoCount: 2 },
+          { id: 't2', namaKaryawan: 'Wayan Budi', tipeKaryawan: 'DW', namaTugas: 'Pool Cleaning', villa: 'Villa Tirta', status: 'Belum Dinilai', waktuMulai: '08:00', departemen: 'Pool', fotoCount: 0 },
+          { id: 't3', namaKaryawan: 'Nyoman Ayu', tipeKaryawan: 'STAFF', namaTugas: 'Amenities Check', villa: 'Villa Surya', status: 'Lanjut', waktuMulai: '07:30', alasan: 'Barang Habis/Menunggu Pasokan', poinDiperoleh: 8 },
+          { id: 't4', namaKaryawan: 'Made Putu', tipeKaryawan: 'STAFF', namaTugas: 'Butler Service', villa: 'Villa Bulan', status: 'Selesai', waktuMulai: '09:00', poinDiperoleh: 10 },
+          { id: 't5', namaKaryawan: 'Ketut Dewa', tipeKaryawan: 'DW', namaTugas: 'Garden Maintenance', villa: 'Villa Daun', status: 'Batal', waktuMulai: '08:30', alasan: 'Kendala Cuaca', poinDiperoleh: -10 },
+        ]
+      };
+    },
+  };
+
+  /* ── Entry point called by router ── */
+  window.renderMonitoring = function () {
+    const root = document.getElementById('monitoring-root');
+    setTimeout(() => {
+      if (window.MonState && typeof MonState.init === 'function') {
+        MonState.init();
+      }
+    }, 20);
+    return root ? root.outerHTML : '<div class="p-4 text-center text-slate-500">Memuat data monitoring...</div>';
+  };
+
+  window.initMonitoring = function () {
+    if (window.MonState && typeof MonState.init === 'function') {
+      MonState.init();
+    }
+  };
+})();
+</script>

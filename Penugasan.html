@@ -1,0 +1,638 @@
+<!-- Penugasan.html — Agranusa KPI Tracker: Pembagian Tugas Shift -->
+<div id="penugasan-root" class="flex flex-col w-full pb-20 select-none">
+
+  <!-- Context Banner -->
+  <section class="px-4 pt-3 mb-4">
+    <div class="relative overflow-hidden rounded-xl bg-[#131b2e] text-white shadow-md p-4">
+      <div class="absolute -right-4 -bottom-6 w-28 h-28 rounded-full bg-[#ffddb0]/10 pointer-events-none blur-xl"></div>
+      <div class="flex items-center justify-between mb-2 relative z-10">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-rounded text-[#ffddb0] text-[18px]">assignment_add</span>
+          <span class="font-label-xs text-[10px] uppercase tracking-wider text-[#ffddb0] font-bold">Penugasan Baru</span>
+        </div>
+        <span class="font-label-xs text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium" id="pen-step-badge">Langkah 1/3</span>
+      </div>
+      <h1 class="font-headline-lg-mobile text-[20px] text-white font-bold mb-1">
+        Buat Penugasan Shift
+      </h1>
+      <p class="font-body-sm text-[12px] text-white/80 leading-tight mb-3">
+        Kapasitas Shift <span id="pen-banner-shift" class="font-semibold text-[#ffddb0]">Pagi</span>: <span id="pen-capacity-count" class="font-semibold text-[#ffddb0]">8 Personel</span>, Target: <span class="font-semibold text-white">14 Suite Unit</span>.
+      </p>
+      <!-- Progress Bar -->
+      <div class="w-full bg-white/15 h-1.5 rounded-full overflow-hidden flex">
+        <div id="pen-progress-bar" class="bg-[#ffddb0] h-full rounded-full transition-all duration-300 w-1/3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 1: Jadwal Shift & Tanggal -->
+  <section class="px-4 mb-5">
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="w-5 h-5 rounded-full bg-[#0b1c30] text-white flex items-center justify-center font-label-xs text-[10px] font-bold">1</span>
+        <h2 class="font-title-sm text-[14px] text-[#0b1c30] font-semibold">Jadwal Shift & Tanggal</h2>
+      </div>
+      <span class="font-label-xs text-[11px] text-[#45464d] font-medium" id="pen-date-status">Hari Ini</span>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-3 flex flex-col gap-3 border border-slate-200">
+      <!-- Date Trigger -->
+      <div class="w-full flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="material-symbols-rounded text-[18px] text-slate-500">calendar_today</span>
+          <input type="date" id="pen-date-input" class="bg-transparent font-title-sm text-[13px] text-slate-800 outline-none font-semibold cursor-pointer" />
+        </div>
+        <span class="font-label-xs text-[10px] text-amber-700 font-bold uppercase tracking-wider">WITA</span>
+      </div>
+      <!-- Shift Switcher -->
+      <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-lg" id="pen-shift-container">
+        <button class="pen-shift-btn py-2 px-1 rounded font-label-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 bg-[#131b2e] text-white shadow-sm" data-shift="Pagi" type="button">
+          <span class="material-symbols-rounded text-[15px] text-[#ffddb0]">wb_sunny</span>
+          <span>Pagi</span>
+        </button>
+        <button class="pen-shift-btn py-2 px-1 rounded font-label-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900" data-shift="Sore" type="button">
+          <span class="material-symbols-rounded text-[15px]">wb_twilight</span>
+          <span>Sore</span>
+        </button>
+        <button class="pen-shift-btn py-2 px-1 rounded font-label-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900" data-shift="Malam" type="button">
+          <span class="material-symbols-rounded text-[15px]">nights_stay</span>
+          <span>Malam</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2: Pilih Karyawan -->
+  <section class="px-4 mb-5">
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="w-5 h-5 rounded-full bg-[#0b1c30] text-white flex items-center justify-center font-label-xs text-[10px] font-bold">2</span>
+        <h2 class="font-title-sm text-[14px] text-[#0b1c30] font-semibold">Pilih Karyawan Ditugaskan</h2>
+      </div>
+      <span class="font-label-xs text-[11px] text-[#069669] font-bold" id="pen-selected-staff-count">0 Dipilih</span>
+    </div>
+    <!-- Filter Pills -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 mb-2">
+      <button class="pen-staff-filter px-3 py-1 rounded-full font-label-xs text-[11px] font-semibold bg-[#131b2e] text-white shrink-0" data-filter="all" type="button">
+        Semua (<span id="pen-filter-all-count">8</span>)
+      </button>
+      <button class="pen-staff-filter px-3 py-1 rounded-full font-label-xs text-[11px] font-semibold bg-slate-100 text-slate-600 shrink-0" data-filter="STAFF" type="button">
+        Staff (<span id="pen-filter-staff-count">5</span>)
+      </button>
+      <button class="pen-staff-filter px-3 py-1 rounded-full font-label-xs text-[11px] font-semibold bg-slate-100 text-slate-600 shrink-0" data-filter="DW" type="button">
+        Daily Worker (<span id="pen-filter-dw-count">3</span>)
+      </button>
+    </div>
+    <!-- Staff Cards Stack -->
+    <div class="flex flex-col gap-2" id="pen-staff-card-list">
+      <!-- Injected via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Step 3: Pilih SOP & Template Tugas -->
+  <section class="px-4 mb-5">
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="w-5 h-5 rounded-full bg-[#0b1c30] text-white flex items-center justify-center font-label-xs text-[10px] font-bold">3</span>
+        <h2 class="font-title-sm text-[14px] text-[#0b1c30] font-semibold">Pilih SOP & Target Villa</h2>
+      </div>
+      <span class="font-label-xs text-[10px] text-amber-700 font-bold uppercase tracking-wider">Template Resmi</span>
+    </div>
+    <!-- Search Input -->
+    <div class="relative mb-2">
+      <span class="material-symbols-rounded absolute left-3 top-2.5 text-slate-400 text-[18px]">search</span>
+      <input class="w-full h-10 pl-9 pr-4 bg-white text-slate-800 font-body-sm text-[13px] rounded-lg border border-slate-200 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#131b2e]" id="pen-task-search" placeholder="Cari SOP villa, sanitasi, kolam renang..." type="text"/>
+    </div>
+    <!-- Template Selection Cards -->
+    <div class="flex flex-col gap-2" id="pen-task-template-list">
+      <!-- Injected via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Review Ringkasan Assignment Bottom Sheet Bar -->
+  <section class="px-4 mb-4">
+    <div class="bg-white rounded-xl shadow-md p-4 border border-slate-200 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-[#ffddb0] flex items-center justify-center text-[#131b2e]">
+            <span class="material-symbols-rounded text-[18px]">task_alt</span>
+          </div>
+          <div>
+            <span class="font-title-sm text-[13px] text-[#0b1c30] font-bold block">Ringkasan Draft</span>
+            <span class="block font-label-xs text-[11px] text-slate-500" id="pen-summary-shift-label">Shift Pagi • Hari Ini</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="font-title-sm text-[14px] text-[#0b1c30] font-bold" id="pen-total-tasks-count">0 Tugas</span>
+          <span class="block font-label-xs text-[11px] text-[#069669] font-bold" id="pen-total-points-count">+0 pts Terdistribusi</span>
+        </div>
+      </div>
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2 pt-1">
+        <button class="w-full h-11 bg-[#131b2e] text-white rounded-xl font-label-md text-[13px] font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md hover:bg-slate-800" id="pen-btn-save-assignment" type="button">
+          <span class="material-symbols-rounded text-[18px] text-[#ffddb0]">send</span>
+          <span id="pen-save-btn-label">Simpan Assignment (0 Tugas)</span>
+        </button>
+        <button class="w-full h-10 bg-[#ffddb0] text-[#281800] rounded-xl font-label-md text-[12px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm hover:bg-amber-200" id="pen-btn-open-wa-modal" type="button">
+          <span class="material-symbols-rounded text-[18px]">content_copy</span>
+          <span>📋 Salin Ringkasan WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WhatsApp Text Preview Modal -->
+  <div class="fixed inset-0 z-50 bg-[#0b1c30]/50 backdrop-blur-sm hidden flex items-end justify-center p-3" id="pen-wa-modal">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-4 flex flex-col gap-3 transform transition-all duration-300 translate-y-full" id="pen-wa-modal-content">
+      <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+            <span class="material-symbols-rounded text-[18px]">chat</span>
+          </div>
+          <div>
+            <h3 class="font-title-sm text-[13px] text-[#0b1c30] font-bold">Ringkasan WhatsApp</h3>
+            <span class="font-label-xs text-[10px] text-slate-500">Siap disalin ke grup briefing WhatsApp</span>
+          </div>
+        </div>
+        <button class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-95" id="pen-btn-close-wa" type="button">
+          <span class="material-symbols-rounded text-[16px]">close</span>
+        </button>
+      </div>
+      <!-- Plain Text Preview Box -->
+      <div class="bg-slate-50 p-3 rounded-xl font-mono text-[11px] text-slate-800 whitespace-pre-wrap select-all leading-relaxed max-h-56 overflow-y-auto border border-slate-200" id="pen-wa-text-content">
+      </div>
+      <!-- Copy Action Button -->
+      <button class="w-full h-11 bg-[#131b2e] text-white rounded-xl font-label-md text-[13px] font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-slate-800" id="pen-btn-copy-wa" type="button">
+        <span class="material-symbols-rounded text-[18px] text-[#ffddb0]">file_copy</span>
+        <span id="pen-copy-btn-text">Salin Teks Ringkasan</span>
+      </button>
+      <span class="font-label-xs text-[10px] text-center text-slate-400">
+        SOP: Teks disalin ke papan klip untuk dipaste manual di grup shift WhatsApp.
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+window.PenugasanManager = (function() {
+  let selectedShift = 'Pagi';
+  let selectedDate = '';
+  let selectedStaffIds = new Set();
+  let draftTasks = []; // { id, templateId, namaTugas, sopId, villa, picId, picName, estimasiMnt, poinSOP }
+
+  const fallbackKaryawan = [
+    { ID: 'K001', Nama: 'Wayan Arta', Tipe: 'STAFF', Departemen: 'Housekeeping Lead', Inisial: 'WA' },
+    { ID: 'K002', Nama: 'Ketut Arya', Tipe: 'DW', Departemen: 'Engineering & Pool', Inisial: 'KA' },
+    { ID: 'K003', Nama: 'Made Sujana', Tipe: 'STAFF', Departemen: 'Butler Service', Inisial: 'MS' },
+    { ID: 'K004', Nama: 'Ni Made Sunari', Tipe: 'STAFF', Departemen: 'Housekeeping', Inisial: 'NS' },
+    { ID: 'K005', Nama: 'Gede Rai', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GR' },
+    { ID: 'K006', Nama: 'I Putu Widana', Tipe: 'STAFF', Departemen: 'Engineering', Inisial: 'PW' },
+    { ID: 'K007', Nama: 'I Gede Dharma', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GD' },
+    { ID: 'K008', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Duty Leader', Inisial: 'KA' },
+  ];
+
+  const fallbackTemplates = [
+    { ID: 'SOP-01', Nama: 'Deep Cleaning Villa Suite', Kategori: 'Housekeeping', Estimasi_Mnt: 90, Poin: 10, Icon: 'bed', Checklist: 'Checklist VIP Suite 12 item' },
+    { ID: 'SOP-02', Nama: 'Perawatan Kolam & Water Filter', Kategori: 'Pool', Estimasi_Mnt: 45, Poin: 10, Icon: 'pool', Checklist: 'Uji pH 7.2 - 7.6 & Skimmer' },
+    { ID: 'SOP-03', Nama: 'Inspeksi Suhu AC & Freon Suite', Kategori: 'Engineering', Estimasi_Mnt: 60, Poin: 8, Icon: 'ac_unit', Checklist: 'Thermal Gun Scan filter' },
+    { ID: 'SOP-04', Nama: 'Turndown & Aromatherapy Refill', Kategori: 'Housekeeping', Estimasi_Mnt: 45, Poin: 10, Icon: 'spa', Checklist: 'Linen spray & floral bath' },
+    { ID: 'SOP-05', Nama: 'Blowing Daun & Garden Cleanup', Kategori: 'Garden', Estimasi_Mnt: 40, Poin: 8, Icon: 'yard', Checklist: 'Area tebing & kolam utama' },
+  ];
+
+  const villaList = [
+    'Villa Suite 01', 'Villa Suite 02 (VIP)', 'Villa 03', 'Villa 04', 
+    'Villa 05', 'Villa 06', 'Villa 07', 'Villa 08', 'Villa 09 (VIP)'
+  ];
+
+  function getStaffList() {
+    return (window.AppState && AppState.karyawan && AppState.karyawan.length > 0)
+      ? AppState.karyawan
+      : fallbackKaryawan;
+  }
+
+  function getTemplateList() {
+    return (window.AppState && AppState.templates && AppState.templates.length > 0)
+      ? AppState.templates
+      : fallbackTemplates;
+  }
+
+  function init() {
+    selectedShift = (window.AppState && AppState.shift) || 'Pagi';
+    const dateInput = document.getElementById('pen-date-input');
+    const today = new Date().toISOString().split('T')[0];
+    selectedDate = (window.AppState && AppState.tanggal) || today;
+    if (dateInput) {
+      dateInput.value = selectedDate;
+      dateInput.addEventListener('change', (e) => {
+        selectedDate = e.target.value;
+        updateSummary();
+      });
+    }
+
+    setupShiftButtons();
+    setupStaffFilters();
+    renderStaffCards();
+    renderTemplateCards();
+    setupSearch();
+    setupWhatsAppModal();
+    setupSaveAction();
+
+    // Default select first 2 staff for immediate draft usability
+    const list = getStaffList();
+    if (list.length >= 2) {
+      selectedStaffIds.add(list[0].ID);
+      selectedStaffIds.add(list[1].ID);
+    }
+    syncStaffCheckboxes();
+    updateStaffCount();
+    updateSummary();
+  }
+
+  function setupShiftButtons() {
+    const btns = document.querySelectorAll('.pen-shift-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => {
+          b.className = 'pen-shift-btn py-2 px-1 rounded font-label-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900';
+          const icon = b.querySelector('.material-symbols-rounded');
+          if (icon) icon.className = 'material-symbols-rounded text-[15px]';
+        });
+        btn.className = 'pen-shift-btn py-2 px-1 rounded font-label-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 bg-[#131b2e] text-white shadow-sm';
+        const activeIcon = btn.querySelector('.material-symbols-rounded');
+        if (activeIcon) activeIcon.className = 'material-symbols-rounded text-[15px] text-[#ffddb0]';
+
+        selectedShift = btn.dataset.shift;
+        if (window.AppState) AppState.shift = selectedShift;
+        const bannerShift = document.getElementById('pen-banner-shift');
+        if (bannerShift) bannerShift.textContent = selectedShift;
+        updateSummary();
+      });
+    });
+  }
+
+  function setupStaffFilters() {
+    const filters = document.querySelectorAll('.pen-staff-filter');
+    filters.forEach(f => {
+      f.addEventListener('click', () => {
+        filters.forEach(btn => {
+          btn.className = 'pen-staff-filter px-3 py-1 rounded-full font-label-xs text-[11px] font-semibold bg-slate-100 text-slate-600 shrink-0';
+        });
+        f.className = 'pen-staff-filter px-3 py-1 rounded-full font-label-xs text-[11px] font-semibold bg-[#131b2e] text-white shrink-0';
+        
+        const type = f.dataset.filter;
+        const cards = document.querySelectorAll('.pen-staff-card');
+        cards.forEach(card => {
+          if (type === 'all' || card.dataset.type === type) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  function renderStaffCards() {
+    const container = document.getElementById('pen-staff-card-list');
+    if (!container) return;
+    const staff = getStaffList();
+
+    const staffCount = staff.filter(s => s.Tipe === 'STAFF').length;
+    const dwCount = staff.filter(s => s.Tipe === 'DW').length;
+    const allEl = document.getElementById('pen-filter-all-count');
+    const staffEl = document.getElementById('pen-filter-staff-count');
+    const dwEl = document.getElementById('pen-filter-dw-count');
+    if (allEl) allEl.textContent = staff.length;
+    if (staffEl) staffEl.textContent = staffCount;
+    if (dwEl) dwEl.textContent = dwCount;
+
+    container.innerHTML = staff.map(s => {
+      const isStaff = s.Tipe === 'STAFF';
+      const badge = isStaff 
+        ? '<span class="px-1.5 py-0.5 rounded bg-slate-100 text-[#0b1c30] font-label-xs text-[10px] font-bold">STAFF</span>'
+        : '<span class="px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 font-label-xs text-[10px] font-semibold border border-dashed border-slate-300">DW</span>';
+
+      return `
+        <label class="pen-staff-card flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-slate-200 cursor-pointer active:scale-[0.99] transition-all" data-type="${s.Tipe}">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-[#0b1c30] font-bold flex items-center justify-center font-display text-sm shrink-0 border border-slate-200">
+              ${s.Inisial || s.Nama.substring(0, 2).toUpperCase()}
+            </div>
+            <div class="flex flex-col min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-title-sm text-[13px] text-[#0b1c30] font-semibold truncate">${s.Nama}</span>
+                ${badge}
+              </div>
+              <div class="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#069669]"></span>
+                <span class="text-[#069669] font-medium">Tersedia</span>
+                <span>•</span>
+                <span class="truncate">${s.Departemen || 'Operasional'}</span>
+              </div>
+            </div>
+          </div>
+          <input type="checkbox" class="pen-staff-cb w-5 h-5 rounded accent-[#131b2e] cursor-pointer" data-id="${s.ID}" data-name="${s.Nama}" data-tipe="${s.Tipe}" />
+        </label>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.pen-staff-cb').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const id = e.target.dataset.id;
+        if (e.target.checked) {
+          selectedStaffIds.add(id);
+        } else {
+          selectedStaffIds.delete(id);
+        }
+        updateStaffCount();
+        updateTemplateDropdowns();
+        updateSummary();
+      });
+    });
+  }
+
+  function syncStaffCheckboxes() {
+    document.querySelectorAll('.pen-staff-cb').forEach(cb => {
+      cb.checked = selectedStaffIds.has(cb.dataset.id);
+    });
+  }
+
+  function updateStaffCount() {
+    const el = document.getElementById('pen-selected-staff-count');
+    if (el) el.textContent = `${selectedStaffIds.size} Dipilih`;
+    const capEl = document.getElementById('pen-capacity-count');
+    if (capEl) capEl.textContent = `${selectedStaffIds.size} Personel`;
+  }
+
+  function renderTemplateCards() {
+    const container = document.getElementById('pen-task-template-list');
+    if (!container) return;
+    const templates = getTemplateList();
+
+    container.innerHTML = templates.map((t, idx) => {
+      const isChecked = idx < 2; // default check 2 tasks
+      return `
+        <div class="pen-task-card p-3 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col gap-2 transition-all" data-template-id="${t.ID}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-8 h-8 rounded-lg bg-slate-100 text-[#131b2e] flex items-center justify-center shrink-0">
+                <span class="material-symbols-rounded text-[18px]">${t.Icon || 'assignment'}</span>
+              </span>
+              <div class="flex flex-col min-w-0">
+                <h3 class="font-title-sm text-[13px] text-[#0b1c30] font-semibold truncate">${t.Nama}</h3>
+                <span class="font-label-xs text-[11px] text-slate-500 truncate">${t.Checklist || t.Kategori} • Est. ${t.Estimasi_Mnt || 60} Mnt</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[#069669] font-label-xs text-[11px] font-bold shrink-0">
+              +${t.Poin || 10} pts
+            </span>
+          </div>
+
+          <!-- Configuration Row -->
+          <div class="bg-slate-50 p-2 rounded-lg grid grid-cols-2 gap-2 mt-1">
+            <div>
+              <label class="block font-label-xs text-[10px] text-slate-500 font-semibold mb-1">Target Villa</label>
+              <select class="pen-villa-select w-full h-8 px-2 rounded bg-white border border-slate-200 text-[11px] font-medium text-slate-800 outline-none">
+                ${villaList.map((v, vIdx) => `<option value="${v}" ${vIdx === idx ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block font-label-xs text-[10px] text-slate-500 font-semibold mb-1">Pilih PIC</label>
+              <select class="pen-pic-select w-full h-8 px-2 rounded bg-white border border-slate-200 text-[11px] font-medium text-slate-800 outline-none">
+                <!-- Injected via updateTemplateDropdowns -->
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center gap-1 text-slate-500 font-label-xs text-[11px]">
+              <span class="material-symbols-rounded text-[14px]">timer</span>
+              <span>${t.Estimasi_Mnt || 60} Menit</span>
+            </div>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <span class="font-label-xs text-[11px] text-[#131b2e] font-semibold">Tugaskan</span>
+              <input type="checkbox" class="pen-task-cb w-4 h-4 rounded accent-[#131b2e]" data-template-id="${t.ID}" ${isChecked ? 'checked' : ''} />
+            </label>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    updateTemplateDropdowns();
+
+    container.querySelectorAll('.pen-task-cb, .pen-villa-select, .pen-pic-select').forEach(el => {
+      el.addEventListener('change', updateSummary);
+    });
+  }
+
+  function updateTemplateDropdowns() {
+    const staff = getStaffList().filter(s => selectedStaffIds.has(s.ID));
+    document.querySelectorAll('.pen-pic-select').forEach((sel, selIdx) => {
+      const currentVal = sel.value;
+      if (staff.length === 0) {
+        sel.innerHTML = '<option value="">(Pilih Karyawan di Step 2)</option>';
+      } else {
+        sel.innerHTML = staff.map((s, idx) => 
+          `<option value="${s.ID}" data-name="${s.Nama}" ${idx === (selIdx % staff.length) ? 'selected' : ''}>${s.Nama} (${s.Tipe})</option>`
+        ).join('');
+      }
+      if (currentVal && sel.querySelector(`option[value="${currentVal}"]`)) {
+        sel.value = currentVal;
+      }
+    });
+  }
+
+  function setupSearch() {
+    const input = document.getElementById('pen-task-search');
+    if (!input) return;
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('.pen-task-card').forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        card.style.display = title.includes(q) ? 'flex' : 'none';
+      });
+    });
+  }
+
+  function updateSummary() {
+    const taskCards = document.querySelectorAll('.pen-task-card');
+    const templates = getTemplateList();
+    draftTasks = [];
+    let totalPoints = 0;
+
+    taskCards.forEach(card => {
+      const cb = card.querySelector('.pen-task-cb');
+      if (cb && cb.checked) {
+        const tId = cb.dataset.templateId;
+        const tmpl = templates.find(t => t.ID === tId) || {};
+        const villaSel = card.querySelector('.pen-villa-select');
+        const picSel = card.querySelector('.pen-pic-select');
+        const picOption = picSel && picSel.selectedOptions ? picSel.selectedOptions[0] : null;
+
+        const pts = Number(tmpl.Poin || 10);
+        totalPoints += pts;
+
+        draftTasks.push({
+          karyawanId: picSel ? picSel.value : '',
+          namaKaryawan: picOption ? (picOption.dataset.name || picOption.text) : '',
+          namaTugas: tmpl.Nama || 'Tugas Shift',
+          villa: villaSel ? villaSel.value : 'Villa Suite 01',
+          sopId: tmpl.ID || '',
+          estimasiMnt: tmpl.Estimasi_Mnt || 60,
+          poinSOP: pts
+        });
+      }
+    });
+
+    const countEl = document.getElementById('pen-total-tasks-count');
+    const ptsEl = document.getElementById('pen-total-points-count');
+    const saveBtnLabel = document.getElementById('pen-save-btn-label');
+    const summaryShiftLabel = document.getElementById('pen-summary-shift-label');
+
+    if (countEl) countEl.textContent = `${draftTasks.length} Tugas`;
+    if (ptsEl) ptsEl.textContent = `+${totalPoints} pts Terdistribusi`;
+    if (saveBtnLabel) saveBtnLabel.textContent = `Simpan Assignment (${draftTasks.length} Tugas)`;
+    if (summaryShiftLabel) summaryShiftLabel.textContent = `Shift ${selectedShift} • ${selectedDate}`;
+
+    const progBar = document.getElementById('pen-progress-bar');
+    const stepBadge = document.getElementById('pen-step-badge');
+    if (draftTasks.length > 0) {
+      if (progBar) progBar.style.width = '100%';
+      if (stepBadge) stepBadge.textContent = 'Langkah 3/3 (Siap Simpan)';
+    } else if (selectedStaffIds.size > 0) {
+      if (progBar) progBar.style.width = '66%';
+      if (stepBadge) stepBadge.textContent = 'Langkah 2/3';
+    } else {
+      if (progBar) progBar.style.width = '33%';
+      if (stepBadge) stepBadge.textContent = 'Langkah 1/3';
+    }
+  }
+
+  function setupWhatsAppModal() {
+    const modal = document.getElementById('pen-wa-modal');
+    const modalContent = document.getElementById('pen-wa-modal-content');
+    const btnOpen = document.getElementById('pen-btn-open-wa-modal');
+    const btnClose = document.getElementById('pen-btn-close-wa');
+    const btnCopy = document.getElementById('pen-btn-copy-wa');
+    const copyText = document.getElementById('pen-copy-btn-text');
+
+    if (btnOpen) {
+      btnOpen.addEventListener('click', () => {
+        generateWhatsAppText();
+        modal.classList.remove('hidden');
+        setTimeout(() => modalContent.classList.remove('translate-y-full'), 10);
+      });
+    }
+
+    function closeModal() {
+      modalContent.classList.add('translate-y-full');
+      setTimeout(() => modal.classList.add('hidden'), 250);
+    }
+
+    if (btnClose) btnClose.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    if (btnCopy) {
+      btnCopy.addEventListener('click', () => {
+        const text = document.getElementById('pen-wa-text-content').innerText.trim();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            copyText.textContent = 'Berhasil Disalin!';
+            if (window.showToast) showToast('Ringkasan disalin ke clipboard', 'success');
+            setTimeout(() => {
+              copyText.textContent = 'Salin Teks Ringkasan';
+              closeModal();
+            }, 900);
+          });
+        } else {
+          if (window.showToast) showToast('Teks siap disalin manual', 'info');
+        }
+      });
+    }
+  }
+
+  function generateWhatsAppText() {
+    const container = document.getElementById('pen-wa-text-content');
+    if (!container) return;
+
+    let text = `*AGRANUSA SIGNATURE VILLA*\n` +
+      `📅 Tanggal: ${selectedDate}\n` +
+      `⏰ Shift: ${selectedShift} (WITA)\n` +
+      `👤 Duty Leader: ${window.AppState?.currentUser?.nama || 'Duty Leader'}\n` +
+      `-----------------------------------------\n` +
+      `*PENUGASAN OPERASIONAL (${draftTasks.length} TUGAS):*\n\n`;
+
+    if (draftTasks.length === 0) {
+      text += `_Belum ada tugas yang dipilih dalam draft penugasan._\n`;
+    } else {
+      draftTasks.forEach((t, i) => {
+        text += `${i + 1}. *${t.namaTugas}* (+${t.poinSOP} pts)\n` +
+                `   📍 Lokasi: ${t.villa}\n` +
+                `   👤 PIC: ${t.namaKaryawan || 'Belum dipilih'}\n` +
+                `   ⏱ Est: ${t.estimasiMnt} Mnt\n\n`;
+      });
+    }
+
+    text += `-----------------------------------------\n` +
+            `_Mohon cek fisik villa & konfirmasi kesiapan shift ke Villa Leader._`;
+
+    container.innerText = text;
+  }
+
+  function setupSaveAction() {
+    const btn = document.getElementById('pen-btn-save-assignment');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      if (draftTasks.length === 0) {
+        if (window.showToast) showToast('Pilih minimal 1 tugas untuk disimpan', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-rounded animate-spin text-[18px]">autorenew</span> Menyimpan...`;
+
+      const payload = {
+        tanggal: selectedDate,
+        shift: selectedShift,
+        tugas: draftTasks
+      };
+
+      try {
+        if (typeof gasRun === 'function') {
+          const res = await gasRun('createTugasShift', payload);
+          if (res && res.success) {
+            if (window.showToast) showToast(`Berhasil menyimpan ${draftTasks.length} penugasan!`, 'success');
+            if (window.navigateTo) navigateTo('monitoring');
+            return;
+          }
+        }
+        // Fallback for demo preview
+        if (window.showToast) showToast(`[Demo] ${draftTasks.length} tugas tersimpan!`, 'success');
+        if (window.navigateTo) navigateTo('monitoring');
+      } catch (err) {
+        console.error('Error saving assignments:', err);
+        if (window.showToast) showToast('Gagal menyimpan penugasan: ' + (err.message || err), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-rounded text-[18px] text-[#ffddb0]">send</span> <span>Simpan Assignment (${draftTasks.length} Tugas)</span>`;
+      }
+    });
+  }
+
+  return { init };
+})();
+
+window.renderPenugasan = function() {
+  const root = document.getElementById('penugasan-root');
+  return root ? root.outerHTML : '<div class="p-4 text-center">Memuat form penugasan...</div>';
+};
+
+window.initPenugasan = function() {
+  PenugasanManager.init();
+};
+</script>

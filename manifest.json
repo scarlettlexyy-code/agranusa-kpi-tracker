@@ -1,0 +1,69 @@
+{
+  "name": "Agranusa KPI & Job Monitoring",
+  "short_name": "Agranusa KPI",
+  "description": "Sistem pemantauan operasional villa, pembagian tugas shift, inspeksi QC dan pelacakan KPI Agranusa Signature Villa.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#131b2e",
+  "theme_color": "#131b2e",
+  "orientation": "portrait",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "management"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard Leader",
+      "short_name": "Dashboard",
+      "description": "Buka ringkasan shift operasional",
+      "url": "./index.html#dashboard",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Penugasan Shift",
+      "short_name": "Penugasan",
+      "description": "Buat pembagian tugas baru",
+      "url": "./index.html#penugasan",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Monitoring Tugas",
+      "short_name": "Monitoring",
+      "description": "Input hasil penilaian pekerjaan",
+      "url": "./index.html#monitoring",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Quality Control",
+      "short_name": "QC",
+      "description": "Catat inspeksi mutu villa",
+      "url": "./index.html#qc",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

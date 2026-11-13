@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#131b2e" />
+      <stop offset="100%" stop-color="#0b1c30" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffddb0" />
+      <stop offset="50%" stop-color="#feb63c" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+
+  <!-- Outer subtle gold hairline rim -->
+  <rect x="12" y="12" width="488" height="488" rx="96" fill="none" stroke="#feb63c" stroke-width="3" stroke-opacity="0.3" />
+
+  <!-- Luxury Villa & Monogram Symbol -->
+  <g transform="translate(64, 76)">
+    <!-- Villa Roof Line -->
+    <path d="M192 36 L340 156 L44 156 Z" fill="url(#goldGrad)" opacity="0.95" />
+    <path d="M192 12 L384 168 L360 188 L192 52 L24 188 L0 168 Z" fill="url(#goldGrad)" />
+
+    <!-- Villa Columns & Portal -->
+    <rect x="52" y="196" width="28" height="140" rx="6" fill="url(#goldGrad)" />
+    <rect x="120" y="196" width="24" height="140" rx="6" fill="url(#goldGrad)" />
+    <rect x="240" y="196" width="24" height="140" rx="6" fill="url(#goldGrad)" />
+    <rect x="304" y="196" width="28" height="140" rx="6" fill="url(#goldGrad)" />
+
+    <!-- Center Arch Portal -->
+    <path d="M168 336 V252 C168 238 216 238 216 252 V336 Z" fill="none" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round" />
+
+    <!-- Star / Five-Star Crown at Apex -->
+    <polygon points="192,2 197,12 208,13 200,21 202,32 192,26 182,32 184,21 176,13 187,12" fill="#ffddb0" />
+
+    <!-- Villa Base Pedestal -->
+    <rect x="24" y="336" width="336" height="20" rx="6" fill="url(#goldGrad)" />
+  </g>
+</svg>
