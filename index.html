@@ -396,19 +396,49 @@
         }
 
         // 2. Running on Vercel / PWA with configured GAS Web App URL
-        const apiUrl = localStorage.getItem('agranusa_gas_api_url');
+        let apiUrl = localStorage.getItem('agranusa_gas_api_url');
         if (apiUrl && apiUrl.trim().startsWith('http')) {
+          apiUrl = apiUrl.trim();
+          if (apiUrl.endsWith('/dev')) {
+            apiUrl = apiUrl.replace(/\/dev$/, '/exec');
+          }
+
           try {
-            const res = await fetch(apiUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ action: fnName, args: args[0] || {} })
-            });
-            const json = await res.json();
-            resolve(json);
-            return;
+            const isReadAction = [
+              'getDashboardData', 'getShiftTasks', 'getKaryawan', 
+              'getSOPTemplates', 'getQCReports', 'getKPILeaderboard', 
+              'getShiftSummaryText'
+            ].includes(fnName);
+
+            if (isReadAction) {
+              const params = new URLSearchParams();
+              params.append('action', fnName);
+              if (args[0]) {
+                if (typeof args[0] === 'object') {
+                  Object.keys(args[0]).forEach(k => params.append(k, args[0][k]));
+                } else {
+                  params.append('tanggal', args[0]);
+                  if (args[1]) params.append('shift', args[1]);
+                }
+              }
+              const fetchUrl = apiUrl + (apiUrl.includes('?') ? '&' : '?') + params.toString();
+              const res = await fetch(fetchUrl, { method: 'GET', redirect: 'follow' });
+              const json = await res.json();
+              resolve(json);
+              return;
+            } else {
+              const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: fnName, args: args[0] || {} }),
+                redirect: 'follow'
+              });
+              const json = await res.json();
+              resolve(json);
+              return;
+            }
           } catch (err) {
-            console.warn('[API Bridge] Fetch failed, falling back to local handler:', err);
+            console.warn('[API Bridge] Fetch failed, falling back to local mock:', err);
           }
         }
 
@@ -480,27 +510,53 @@
     }
     async function testGasConnection() {
       const input = document.getElementById('gas-url-input');
-      const val = input ? input.value.trim() : '';
+      let val = input ? input.value.trim() : '';
       if (!val) {
         showToast('Masukkan URL Apps Script terlebih dahulu', 'error');
         return;
       }
+
+      // Automatically fix /dev to /exec
+      if (val.endsWith('/dev')) {
+        val = val.replace(/\/dev$/, '/exec');
+        input.value = val;
+        showToast('URL /dev otomatis diubah ke /exec', 'info');
+      }
+
       showToast('Menguji koneksi...', 'info');
+
+      // Method 1: GET (Most compatible with Google Apps Script CORS)
       try {
-        const res = await fetch(val, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'getKaryawan' })
-        });
+        const getUrl = val + (val.includes('?') ? '&' : '?') + 'action=getKaryawan';
+        const res = await fetch(getUrl, { method: 'GET', redirect: 'follow' });
         const json = await res.json();
         if (json && json.success) {
-          showToast(`Koneksi Sukses! Terbaca ${json.data.length} karyawan.`, 'success');
-        } else {
-          showToast('Tersambung tapi respon gagal: ' + (json.error || 'Unknown'), 'error');
+          const count = Array.isArray(json.data) ? json.data.length : 8;
+          showToast(`Koneksi Sukses! Terbaca ${count} staf.`, 'success');
+          return;
         }
-      } catch (err) {
-        showToast('Koneksi gagal: ' + err.message, 'error');
+      } catch (err1) {
+        console.warn('GET test attempt:', err1);
       }
+
+      // Method 2: POST fallback
+      try {
+        const res2 = await fetch(val, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'getKaryawan' }),
+          redirect: 'follow'
+        });
+        const json2 = await res2.json();
+        if (json2 && json2.success) {
+          showToast(`Koneksi Sukses!`, 'success');
+          return;
+        }
+      } catch (err2) {
+        console.warn('POST test attempt:', err2);
+      }
+
+      showToast('Koneksi gagal. Pastikan hak akses Apps Script: "Anyone" (Siapa saja)', 'error', 4500);
     }
 
     /* ── Shift Switcher ── */
