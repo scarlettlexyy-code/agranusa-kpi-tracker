@@ -40,7 +40,14 @@ const POIN = {
 function doGet(e) {
   // If JSON API request with action parameter
   if (e && e.parameter && e.parameter.action) {
-    return _handleApiAction(e.parameter.action, e.parameter);
+    let data = Object.assign({}, e.parameter);
+    if (data.payload && typeof data.payload === 'string') {
+      try {
+        const parsed = JSON.parse(data.payload);
+        data = Object.assign({}, data, parsed);
+      } catch (_) {}
+    }
+    return _handleApiAction(e.parameter.action, data);
   }
 
   const page = (e && e.parameter && e.parameter.page) ? e.parameter.page : 'index';
@@ -55,13 +62,13 @@ function doGet(e) {
   try {
     return HtmlService.createTemplateFromFile(template)
       .evaluate()
-      .setTitle('Agranusa KPI Tracker')
+      .setTitle('Agranusa Engineering KPI Tracker')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (_) {
     // Fallback: single-page template
-    return HtmlService.createHtmlOutput('<h2>Agranusa KPI Tracker</h2><p>Setup berhasil.</p>')
-      .setTitle('Agranusa KPI Tracker');
+    return HtmlService.createHtmlOutput('<h2>Agranusa Engineering KPI Tracker</h2><p>Setup backend berhasil.</p>')
+      .setTitle('Agranusa Engineering KPI Tracker');
   }
 }
 
@@ -79,7 +86,10 @@ function doPost(e) {
     }
 
     const action = payload.action;
-    const args   = payload.args || payload;
+    let args     = payload.args || payload;
+    if (typeof args === 'string') {
+      try { args = JSON.parse(args); } catch (_) {}
+    }
     return _handleApiAction(action, args);
   } catch (err) {
     return _jsonResponse({ success: false, error: err.message });
@@ -88,6 +98,19 @@ function doPost(e) {
 
 function _handleApiAction(action, data) {
   let res = { success: false, error: 'Unknown action: ' + action };
+
+  // Parse nested payload/tugas if passed as string
+  if (data && typeof data === 'object') {
+    if (data.payload && typeof data.payload === 'string') {
+      try {
+        const parsed = JSON.parse(data.payload);
+        data = Object.assign({}, data, parsed);
+      } catch (_) {}
+    }
+    if (typeof data.tugas === 'string') {
+      try { data.tugas = JSON.parse(data.tugas); } catch (_) {}
+    }
+  }
 
   switch (action) {
     case 'getDashboardData':
@@ -127,7 +150,8 @@ function _handleApiAction(action, data) {
       res = getShiftSummaryText(data.tanggal, data.shift);
       break;
     case 'initializeSheets':
-      res = initializeSheets();
+    case 'resetEngineeringData':
+      res = initializeSheets(true);
       break;
     default:
       res = { success: false, error: 'Action not supported: ' + action };
@@ -760,62 +784,62 @@ function getShiftSummaryText(tanggal, shift) {
   }
 }
 
-// ── Initialize Sheets ────────────────────────────────────────
-function initializeSheets() {
+// ── Initialize Sheets (Khusus Department Engineering) ─────────
+function initializeSheets(forceReset) {
   try {
     const ss = getSpreadsheet();
 
-    // ── 1. Sheet Karyawan ──────────────────────────────────
+    // ── 1. Sheet Karyawan Engineering ──────────────────────
     _createSheetIfNotExists(ss, SHEETS.KARYAWAN, [
       'ID','Nama','Tipe','Departemen','Status','Inisial'
     ], [
-      ['KAR-001', 'I Wayan Sudarsana',   'STAFF', 'Housekeeping', 'aktif', 'WYS'],
-      ['KAR-002', 'Ni Ketut Arianti',    'STAFF', 'Housekeeping', 'aktif', 'NKA'],
-      ['KAR-003', 'I Nyoman Bagiarta',   'STAFF', 'Engineering',  'aktif', 'NYB'],
-      ['KAR-004', 'Ni Made Suartini',    'STAFF', 'Butler',       'aktif', 'NMS'],
-      ['KAR-005', 'I Gede Mahardika',    'STAFF', 'Pool',         'aktif', 'GDM'],
-      ['KAR-006', 'Ni Putu Rahayu',      'DW',    'Housekeeping', 'aktif', 'NPR'],
-      ['KAR-007', 'I Komang Wirajaya',   'DW',    'Garden',       'aktif', 'KMW'],
-      ['KAR-008', 'Ni Luh Sriani',       'DW',    'Housekeeping', 'aktif', 'NLS'],
-    ]);
+      ['KAR-ENG-001', 'I Putu Widana',     'STAFF', 'Engineering AC & Chiller',   'aktif', 'IPW'],
+      ['KAR-ENG-002', 'Ketut Arya',        'STAFF', 'Engineering Listrik & Genset','aktif', 'KTA'],
+      ['KAR-ENG-003', 'I Nyoman Bagiarta', 'STAFF', 'Engineering Plumbing & Pump', 'aktif', 'INB'],
+      ['KAR-ENG-004', 'Gede Rai',          'STAFF', 'Engineering Kolam & Filter',  'aktif', 'GDR'],
+      ['KAR-ENG-005', 'I Made Sujana',     'STAFF', 'Engineering Civil & Finishing','aktif', 'IMS'],
+      ['KAR-ENG-006', 'I Komang Wirajaya', 'DW',    'Engineering Asisten AC',      'aktif', 'IKW'],
+      ['KAR-ENG-007', 'I Wayan Sudarsana', 'DW',    'Engineering Asisten Listrik', 'aktif', 'IWS'],
+      ['KAR-ENG-008', 'Kadek Agus',        'STAFF', 'Duty Leader Engineering',     'aktif', 'KDA'],
+    ], forceReset);
 
-    // ── 2. Sheet SOP Templates ─────────────────────────────
+    // ── 2. Sheet SOP Templates Engineering ──────────────────
     _createSheetIfNotExists(ss, SHEETS.SOP, [
       'ID','Nama','Kategori','Deskripsi','Estimasi_Mnt','Poin','Icon','Checklist_Items'
     ], [
-      ['SOP-001', 'Pembersihan Kamar Standard', 'Housekeeping',
-        'Membersihkan kamar secara menyeluruh sesuai standar Agranusa', 60, 10, '🛏️',
-        'Ganti linen|Bersihkan bathroom|Vacuum lantai|Lap furniture|Isi amenities'],
-      ['SOP-002', 'Pembersihan Kamar Checkout', 'Housekeeping',
-        'Deep cleaning kamar setelah tamu checkout', 90, 10, '🧹',
-        'Cek kerusakan|Ganti semua linen|Deep clean bathroom|Vacuum+mop|Susun ulang furniture|Isi penuh amenities'],
-      ['SOP-003', 'Perawatan Kolam Renang', 'Pool',
-        'Pemeriksaan dan perawatan harian kolam renang villa', 45, 10, '🏊',
-        'Cek pH air|Skimming permukaan|Sikat dinding|Backwash filter|Tambah klorin jika perlu'],
-      ['SOP-004', 'Penyapuan & Pembersihan Taman', 'Garden',
-        'Perawatan taman dan area outdoor villa', 60, 10, '🌺',
-        'Sapu daun kering|Siram tanaman|Potong rumput jika perlu|Rapikan tanaman hias|Bersihkan drainase'],
-      ['SOP-005', 'Pemeriksaan Instalasi Listrik', 'Engineering',
-        'Pengecekan rutin sistem kelistrikan villa', 30, 10, '⚡',
-        'Cek semua lampu|Test stop kontak|Cek MCB|Periksa AC|Catat temuan'],
-      ['SOP-006', 'Layanan Turndown', 'Housekeeping',
-        'Persiapan kamar untuk malam hari', 30, 10, '🌙',
-        'Lipat selimut|Pasang lampu tidur|Siapkan slippers|Tutup tirai|Taruh welcome card'],
-      ['SOP-007', 'Persiapan Sarapan Kamar', 'Butler',
-        'Penyiapan dan pengantaran sarapan in-room dining', 45, 10, '🍳',
-        'Konfirmasi pesanan|Siapkan tray|Plating|Antar ke kamar|Presentasi & brief tamu'],
-      ['SOP-008', 'Pemeriksaan AC & Ventilasi', 'Engineering',
-        'Maintenance rutin sistem pendingin udara', 40, 10, '❄️',
-        'Bersihkan filter AC|Cek freon|Test remote|Cek temperature setpoint|Catat kondisi unit'],
-      ['SOP-009', 'Inspeksi Pre-Arrival', 'Butler',
-        'Persiapan villa sebelum tamu check-in', 50, 10, '✨',
-        'Cek kebersihan|Siapkan welcome amenities|Test semua fasilitas|Cek minibar|Pasang dekorasi jika diminta'],
-      ['SOP-010', 'Perawatan Water Heater & Plumbing', 'Engineering',
-        'Pemeriksaan sistem plumbing dan pemanas air', 35, 10, '🚿',
-        'Test air panas|Cek tekanan air|Periksa kebocoran|Bersihkan shower head|Catat kondisi'],
-    ]);
+      ['SOP-ENG-001', 'Inspeksi & Cuci Filter AC Villa Suite', 'AC & HVAC',
+        'Pembersihan evaporator, cuci filter, cek suhu hembusan & tekanan freon', 45, 10, 'ac_unit',
+        'Cuci filter indoor|Cek remote & display|Ukur temperatur hembusan (18-22°C)|Cek pipa drainase|Catat kondisi unit'],
+      ['SOP-ENG-002', 'Pengecekan Panel Listrik & Beban MCB', 'Kelistrikan',
+        'Pemeriksaan temperatur panel MCB, isolasi kabel & stop kontak villa', 30, 10, 'bolt',
+        'Scan suhu MCB dengan thermal gun|Test testpen ground & netral|Cek switch lampu taman|Pastikan tidak ada bau terbakar|Catat voltase'],
+      ['SOP-ENG-003', 'Perawatan Pompa Kolam & Backwash Sand Filter', 'Pool System',
+        'Backwash dan rinse sand filter, pembersihan strainer basket pompa kolam', 45, 10, 'pool',
+        'Matikan pompa|Putar valve ke Backwash (2 menit)|Putar ke Rinse (1 menit)|Bersihkan strainer basket|Kembalikan ke Filter & cek pressure gauge'],
+      ['SOP-ENG-004', 'Inspeksi Solar Water Heater & Tekanan Air', 'Plumbing',
+        'Pengecekan suhu output air panas, valve pengaman & booster pump', 35, 10, 'hot_tub',
+        'Ukur suhu air panas (min 45°C)|Periksa safety relief valve|Cek booster pump pressure|Cek sambungan pipa dari kebocoran|Catat level tangki'],
+      ['SOP-ENG-005', 'Preventive Maintenance Genset & Level Solar', 'Genset & Power',
+        'Uji coba pemanasan genset mingguan, cek aki, oli, dan cadangan bahan bakar solar', 40, 10, 'power',
+        'Cek level solar (min 80%)|Cek level oli mesin|Cek tegangan aki stater (12.4V)|Running test tanpa beban 10 menit|Pastikan exhaust lancar'],
+      ['SOP-ENG-006', 'Pengujian Kualitas Air Kolam (pH & Klorin)', 'Pool System',
+        'Testing kadar pH air kolam dan kandungan klorin dengan test kit', 30, 8, 'science',
+        'Ambil sampel air 30cm dari permukaan|Beri reagen Phenol Red (target pH 7.2-7.6)|Beri reagen OTO (klorin 1.5-3.0 ppm)|Catat hasil logbook kolam'],
+      ['SOP-ENG-007', 'Pengecekan Lampu Underwater & Garden Spot', 'Kelistrikan',
+        'Pemeriksaan lampu sorot kolam renang trafo 12V dan penerangan taman villa', 35, 8, 'lightbulb',
+        'Cek lampu underwater trafo 12V|Pastikan water seal kedap air|Cek lampu spot pathway taman|Ganti bohlam redup/mati|Bersihkan cover mika lampu'],
+      ['SOP-ENG-008', 'Perbaikan Kunci Smartlock, Engsel & Pintu Villa', 'Civil & Hardware',
+        'Pelumasan engsel pintu kaca sliding, kalibrasi smart digital doorlock', 40, 8, 'lock',
+        'Cek baterai smartlock pintu masuk|Lumasi rel pintu geser kaca dengan silicone spray|Cek grendel jendela|Pastikan pintu menutup rapat'],
+      ['SOP-ENG-009', 'Pembersihan Grease Trap & Saluran Drainase', 'Plumbing',
+        'Pengurasan lemak kitchen sink dan pembersihan saringan floor drain villa', 50, 10, 'plumbing',
+        'Buka penutup grease trap kitchen|Angkat kerak lemak ke kantong sampah|Bersihkan keranjang saringan|Siram air panas|Cek kelancaran drainase'],
+      ['SOP-ENG-010', 'Inspeksi Audio-Visual & Smart TV Villa VIP', 'Audio Visual',
+        'Pemeriksaan koneksi HDMI soundbar, Netflix/YouTube Smart TV, & Wi-Fi router', 30, 8, 'tv',
+        'Nyalakan Smart TV & cek sinyal Wi-Fi|Test audio bluetooth soundbar|Pastikan akun streaming siap pakai|Rapikan kabel di balik credenza'],
+    ], forceReset);
 
-    // ── 3. Sheet Tugas_Shift ───────────────────────────────
+    // ── 3. Sheet Tugas_Shift Engineering ────────────────────
     const tugasHeaders = [
       'ID','Tanggal','Shift','Karyawan_ID','Nama_Karyawan','Tipe_Karyawan',
       'Departemen','Nama_Tugas','Villa','SOP_ID','Estimasi_Mnt','Poin_SOP',
@@ -825,37 +849,43 @@ function initializeSheets() {
     const nowStr       = formatDateTime(new Date());
     const shiftAktif   = getCurrentShift();
     const tugasSeed    = [
-      ['TGS-SEED-001', today, shiftAktif, 'KAR-001', 'I Wayan Sudarsana',   'STAFF', 'Housekeeping', 'Pembersihan Kamar Standard', 'Villa 01', 'SOP-001', 60, 10, 'Pending', 0, '', '', '', '', nowStr],
-      ['TGS-SEED-002', today, shiftAktif, 'KAR-002', 'Ni Ketut Arianti',    'STAFF', 'Housekeeping', 'Pembersihan Kamar Checkout',  'Villa 03', 'SOP-002', 90, 10, 'Pending', 0, '', '', '', '', nowStr],
-      ['TGS-SEED-003', today, shiftAktif, 'KAR-005', 'I Gede Mahardika',    'STAFF', 'Pool',         'Perawatan Kolam Renang',      'Villa 05', 'SOP-003', 45, 10, 'Selesai', 10,'', '', nowStr, 'Leader', nowStr],
-      ['TGS-SEED-004', today, shiftAktif, 'KAR-007', 'I Komang Wirajaya',   'DW',    'Garden',       'Penyapuan & Pembersihan Taman','Villa 07','SOP-004', 60, 10, 'Lanjut',  8, 'Pekerjaan dilanjutkan shift berikutnya', '', '', 'Leader', nowStr],
-      ['TGS-SEED-005', today, shiftAktif, 'KAR-003', 'I Nyoman Bagiarta',   'STAFF', 'Engineering',  'Pemeriksaan Instalasi Listrik','Villa 02','SOP-005', 30, 10, 'Selesai', 10,'', '', nowStr, 'Leader', nowStr],
+      ['TGS-ENG-001', today, shiftAktif, 'KAR-ENG-001', 'I Putu Widana',     'STAFF', 'Engineering AC & Chiller',   'Inspeksi & Cuci Filter AC Villa Suite',      'Villa 02',           'SOP-ENG-001', 45, 10, 'Pending', 0,  '', '', '', '', nowStr],
+      ['TGS-ENG-002', today, shiftAktif, 'KAR-ENG-002', 'Ketut Arya',        'STAFF', 'Engineering Listrik & Genset','Pengecekan Panel Listrik & Beban MCB',       'Villa 05',           'SOP-ENG-002', 30, 10, 'Selesai', 10, '', '', nowStr, 'Kadek Agus', nowStr],
+      ['TGS-ENG-003', today, shiftAktif, 'KAR-ENG-004', 'Gede Rai',          'STAFF', 'Engineering Kolam & Filter',  'Perawatan Pompa Kolam & Backwash Sand Filter','Villa Suite 01',     'SOP-ENG-003', 45, 10, 'Selesai', 10, '', '', nowStr, 'Kadek Agus', nowStr],
+      ['TGS-ENG-004', today, shiftAktif, 'KAR-ENG-003', 'I Nyoman Bagiarta', 'STAFF', 'Engineering Plumbing & Pump', 'Inspeksi Solar Water Heater & Tekanan Air', 'Villa 04',           'SOP-ENG-004', 35, 10, 'Pending', 0,  '', '', '', '', nowStr],
+      ['TGS-ENG-005', today, shiftAktif, 'KAR-ENG-007', 'I Wayan Sudarsana', 'DW',    'Engineering Asisten Listrik', 'Pengecekan Lampu Underwater & Garden Spot',   'Villa 07',           'SOP-ENG-007', 35, 8,  'Lanjut',  8,  'Menunggu bohlam cadangan dari store', '', '', 'Kadek Agus', nowStr],
     ];
-    _createSheetIfNotExists(ss, SHEETS.TUGAS, tugasHeaders, tugasSeed);
+    _createSheetIfNotExists(ss, SHEETS.TUGAS, tugasHeaders, tugasSeed, forceReset);
 
-    // ── 4. Sheet QC_Reports ────────────────────────────────
+    // ── 4. Sheet QC_Reports Engineering ────────────────────
     _createSheetIfNotExists(ss, SHEETS.QC, [
       'ID','Tanggal','Shift','Villa','Tipe_Villa','Area','Kategori','Deskripsi',
       'Status','PIC_ID','PIC_Nama','Foto_URLs','Verifikator',
       'Waktu_Inspeksi','Waktu_Selesai','Timestamp_Buat'
     ], [
-      ['QC-SEED-001', today, shiftAktif, 'Villa 04', 'Pool Villa', 'Bathroom', 'Kebersihan',
-        'Ditemukan noda pada cermin kamar mandi', 'Open',
-        'KAR-004', 'Ni Made Suartini', '', '', nowStr, '', nowStr],
-    ]);
+      ['QC-ENG-001', today, shiftAktif, 'Villa 04', 'Pool Villa', 'Living Pavilion', 'AC & HVAC',
+        'Suhu AC kamar utama drop (26°C tidak dingin), tekanan freon perlu dicek', 'Menunggu Perbaikan',
+        'KAR-ENG-001', 'I Putu Widana', '', '', nowStr, '', nowStr],
+      ['QC-ENG-002', today, shiftAktif, 'Villa 06', 'Family 3-Bedroom', 'Pump Room', 'Plumbing',
+        'Booster pump air bergetar keras dan timbul suara bising getaran pipa', 'Dalam Perbaikan',
+        'KAR-ENG-003', 'I Nyoman Bagiarta', '', '', nowStr, '', nowStr],
+      ['QC-ENG-003', today, shiftAktif, 'Villa Suite 02', 'VIP Honeymoon', 'Pool Area', 'Kelistrikan',
+        'Lampu sorot kolam renang bawah air mati di sisi utara', 'Selesai Diperbaiki',
+        'KAR-ENG-002', 'Ketut Arya', '', 'Kadek Agus (Duty Lead)', nowStr, nowStr, nowStr],
+    ], forceReset);
 
-    // ── 5. Sheet Shift_Log ─────────────────────────────────
+    // ── 5. Sheet Shift_Log Engineering ─────────────────────
     _createSheetIfNotExists(ss, SHEETS.SHIFT_LOG, [
       'ID','Tanggal','Shift','Leader','Total_Tugas','Selesai','Lanjut',
       'Batal','Belum_Dinilai','Total_Poin','Status','Waktu_Kunci'
     ], [
-      ['SL-SEED-001', today, shiftAktif, 'I Wayan Sudarsana', 5, 2, 1, 0, 2, 28, 'aktif', ''],
-    ]);
+      ['SL-ENG-001', today, shiftAktif, 'Kadek Agus', 5, 2, 1, 0, 2, 28, 'aktif', ''],
+    ], forceReset);
 
     return {
       success: true,
       data: {
-        message: 'Semua sheet berhasil diinisialisasi.',
+        message: 'Semua sheet Engineering berhasil diinisialisasi.',
         sheets: Object.values(SHEETS),
       }
     };
@@ -864,25 +894,34 @@ function initializeSheets() {
   }
 }
 
-function _createSheetIfNotExists(ss, name, headers, seedRows) {
+function _createSheetIfNotExists(ss, name, headers, seedRows, forceReset) {
   let sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
-    sheet.appendRow(headers);
-
-    // Style header row
-    const headerRange = sheet.getRange(1, 1, 1, headers.length);
-    headerRange.setBackground('#1a237e');
-    headerRange.setFontColor('#ffffff');
-    headerRange.setFontWeight('bold');
-    sheet.setFrozenRows(1);
-
-    if (seedRows && seedRows.length > 0) {
-      seedRows.forEach(row => sheet.appendRow(row));
-    }
-    // Auto-resize columns
-    sheet.autoResizeColumns(1, headers.length);
+  } else if (forceReset) {
+    sheet.clear();
+  } else {
+    // If sheet exists and not forceReset, do nothing
+    return sheet;
   }
+
+  sheet.appendRow(headers);
+
+  // Style header row
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#131b2e');
+  headerRange.setFontColor('#feb63c');
+  headerRange.setFontWeight('bold');
+  sheet.setFrozenRows(1);
+
+  if (seedRows && seedRows.length > 0) {
+    seedRows.forEach(row => sheet.appendRow(row));
+  }
+  // Auto-resize columns
+  try {
+    sheet.autoResizeColumns(1, headers.length);
+  } catch (_) {}
+
   return sheet;
 }
 

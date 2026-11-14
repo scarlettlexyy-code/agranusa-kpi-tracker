@@ -4,17 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#131b2e" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Agranusa KPI" />
-  <meta name="description" content="Sistem Pemantauan Operasional Villa & Pelacakan KPI Agranusa Signature Villa." />
+  <meta name="apple-mobile-web-app-title" content="Agranusa Engineering" />
+  <meta name="description" content="Sistem Pemantauan Operasional Villa & Pelacakan KPI Engineering Agranusa Signature Villa." />
   
-  <title>Agranusa KPI Tracker</title>
+  <title>Agranusa Engineering KPI Tracker</title>
 
   <!-- PWA Manifest & Icons -->
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -115,6 +116,13 @@
       overscroll-behavior: none;
       overscroll-behavior-y: none;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    input, select, textarea {
+      user-select: auto;
+      -webkit-user-select: auto;
     }
     * { scrollbar-width: none; -ms-overflow-style: none; }
     *::-webkit-scrollbar { display: none; }
@@ -140,7 +148,7 @@
       top: 0; left: 0; right: 0;
       z-index: 50;
       background: #131b2e;
-      height: calc(var(--sat) + 60px);
+      height: calc(var(--sat) + 58px);
       display: flex;
       align-items: flex-end;
       padding-top: var(--sat);
@@ -149,7 +157,7 @@
       display: flex;
       align-items: center;
       width: 100%;
-      padding: 0 1rem 0.625rem;
+      padding: 0 1rem 0.5rem;
       gap: 0.5rem;
     }
 
@@ -164,7 +172,7 @@
     .nav-inner {
       display: flex;
       align-items: stretch;
-      height: 56px;
+      height: 50px;
       max-width: 500px;
       margin: 0 auto;
     }
@@ -174,11 +182,20 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 1px;
       cursor: pointer;
       position: relative;
       color: #7c839b;
       transition: color 0.15s;
+    }
+    .nav-tab .nav-icon {
+      font-size: 19px !important;
+      line-height: 19px;
+    }
+    .nav-tab .nav-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
     }
     .nav-tab.active {
       color: #feb63c;
@@ -189,7 +206,7 @@
     .nav-tab.active::before {
       content: '';
       position: absolute;
-      top: 0; left: 20%; right: 20%;
+      top: 0; left: 24%; right: 24%;
       height: 2px;
       background: #feb63c;
       border-radius: 0 0 2px 2px;
@@ -198,8 +215,8 @@
     #app-content {
       flex: 1;
       overflow-y: auto;
-      padding-top: calc(var(--sat) + 64px);
-      padding-bottom: calc(var(--sab) + 70px);
+      padding-top: calc(var(--sat) + 62px);
+      padding-bottom: calc(var(--sab) + 64px);
       padding-left: var(--sal);
       padding-right: var(--sar);
     }
@@ -248,12 +265,12 @@
     <div class="header-inner">
       <div class="flex items-center gap-2 min-w-0">
         <div class="w-8 h-8 rounded-lg bg-[#feb63c]/20 border border-[#feb63c]/40 flex items-center justify-center text-[#ffddb0] shrink-0">
-          <span class="material-symbols-rounded text-[18px]">villa</span>
+          <span class="material-symbols-rounded text-[18px]">home_repair_service</span>
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
             <span class="font-title-sm text-[13px] font-bold text-white tracking-wide truncate">Agranusa</span>
-            <span class="px-1.5 py-0.2 rounded bg-[#feb63c] text-[#281800] font-label-xs text-[9px] font-black uppercase">VIP</span>
+            <span class="px-1.5 py-0.2 rounded bg-[#feb63c] text-[#281800] font-label-xs text-[9px] font-black uppercase tracking-wider">ENGINEERING</span>
           </div>
           <span class="font-label-xs text-[10px] text-[#7c839b] truncate">Job &amp; KPI Monitoring</span>
         </div>
@@ -267,14 +284,14 @@
           <span class="material-symbols-rounded text-white/50 text-[14px]">expand_more</span>
         </button>
 
-        <!-- Settings / GAS Bridge Modal Trigger -->
-        <button onclick="openSettingsModal()" aria-label="Settings" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/15 transition-all">
+        <!-- Settings / GAS Bridge Modal Trigger (Hidden if URL already set) -->
+        <button onclick="openSettingsModal()" id="header-settings-btn" aria-label="Settings" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/15 transition-all" title="Pengaturan Backend">
           <span class="material-symbols-rounded text-[17px]">settings</span>
         </button>
 
-        <!-- User Avatar -->
-        <div class="w-8 h-8 rounded-full bg-[#feb63c] text-[#281800] font-bold flex items-center justify-center text-xs shadow-sm font-display" id="header-avatar">
-          PW
+        <!-- User Avatar (Click to open settings for Duty Leader/Admin) -->
+        <div onclick="openSettingsModal()" title="Kadek Agus — Duty Leader (Ketuk untuk Pengaturan)" class="w-8 h-8 rounded-full bg-[#feb63c] text-[#281800] font-bold flex items-center justify-center text-xs shadow-sm font-display cursor-pointer hover:ring-2 hover:ring-[#feb63c]/50 transition-all" id="header-avatar">
+          KA
         </div>
       </div>
     </div>
@@ -285,7 +302,7 @@
     <!-- Screen contents dynamically rendered by Router -->
   </main>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Navigation (Compact & Sleek) -->
   <nav id="app-nav">
     <div class="nav-inner">
       <div class="nav-tab active" data-page="dashboard" onclick="navigateTo('dashboard')">
@@ -303,7 +320,7 @@
       <div class="nav-tab" data-page="qc" onclick="navigateTo('qc')">
         <span class="relative">
           <span class="material-symbols-rounded nav-icon icon-outlined">verified</span>
-          <span class="absolute -top-1 -right-2 px-1 min-w-[13px] h-[13px] flex items-center justify-center rounded-full bg-[#ba1a1a] text-white font-label-xs text-[8px] font-bold leading-none ring-1 ring-[#131b2e]">3</span>
+          <span class="absolute -top-1 -right-1.5 px-1 min-w-[11px] h-[11px] flex items-center justify-center rounded-full bg-[#ba1a1a] text-white font-label-xs text-[7.5px] font-bold leading-none ring-1 ring-[#131b2e]">3</span>
         </span>
         <span class="nav-label">QC</span>
       </div>
@@ -323,7 +340,7 @@
       <div class="flex items-center justify-between pb-2 border-b border-slate-100">
         <div class="flex items-center gap-2">
           <span class="material-symbols-rounded text-[22px] text-[#131b2e]">settings_ethernet</span>
-          <h3 class="font-title-sm text-[14px] font-bold text-[#0b1c30]">Pengaturan Koneksi Backend</h3>
+          <h3 class="font-title-sm text-[14px] font-bold text-[#0b1c30]">Pengaturan Backend Engineering</h3>
         </div>
         <button onclick="closeSettingsModal()" class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800">
           <span class="material-symbols-rounded text-[16px]">close</span>
@@ -331,13 +348,13 @@
       </div>
 
       <p class="font-body-sm text-[12px] text-slate-600 leading-relaxed">
-        Saat aplikasi dideploy di <strong>Vercel</strong> atau dijalankan sebagai <strong>PWA</strong>, masukkan URL Web App Google Apps Script Anda untuk sinkronisasi database live.
+        Masukkan URL Web App Google Apps Script Anda untuk sinkronisasi database live Google Sheet.
       </p>
 
       <div>
         <label class="block font-label-md text-[11px] font-semibold text-slate-700 mb-1">URL Web App Google Apps Script:</label>
         <input type="url" id="gas-url-input" class="w-full p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[12px] text-slate-800 font-mono outline-none focus:ring-1 focus:ring-[#131b2e]" placeholder="https://script.google.com/macros/s/.../exec" />
-        <span class="block font-label-xs text-[10px] text-slate-400 mt-1">Kosongkan untuk menggunakan Mode Simulasi / Demo Data lokal.</span>
+        <span class="block font-label-xs text-[10px] text-slate-400 mt-1">Kosongkan untuk menggunakan Mode Simulasi Engineering lokal.</span>
       </div>
 
       <div class="flex items-center justify-between pt-2">
@@ -346,6 +363,13 @@
         </button>
         <button onclick="saveGasSettings()" class="px-4 py-2 rounded-lg bg-[#131b2e] text-white font-label-md text-[12px] font-semibold shadow-md active:scale-95 hover:bg-slate-800">
           Simpan Pengaturan
+        </button>
+      </div>
+
+      <div class="mt-2 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="font-label-xs text-[10px] text-slate-400">Database Google Sheet:</span>
+        <button onclick="syncInitializeEngineeringSheets()" class="px-2.5 py-1 rounded bg-[#feb63c]/20 hover:bg-[#feb63c]/30 text-[#805600] font-label-xs text-[10.5px] font-bold flex items-center gap-1 transition-all">
+          <span class="material-symbols-rounded text-[13px]">database</span> Reset Data Engineering Sheet
         </button>
       </div>
     </div>
@@ -357,10 +381,22 @@
       currentPage: 'dashboard',
       tanggal: new Date().toISOString().split('T')[0],
       shift: 'Pagi',
-      currentUser: { nama: 'Pak Wayan', inisial: 'PW', role: 'Duty Leader' },
+      currentUser: { nama: 'Kadek Agus', inisial: 'KA', role: 'Duty Leader Engineering' },
       karyawan: [],
       templates: []
     };
+
+    function checkSettingsVisibility() {
+      const btn = document.getElementById('header-settings-btn');
+      const apiUrl = localStorage.getItem('agranusa_gas_api_url');
+      if (btn) {
+        if (apiUrl && apiUrl.trim().startsWith('http')) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+        }
+      }
+    }
 
     function showToast(message, type = 'info', duration = 2800) {
       const container = document.getElementById('toast-container');
@@ -427,15 +463,32 @@
               resolve(json);
               return;
             } else {
-              const res = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: fnName, args: args[0] || {} }),
-                redirect: 'follow'
-              });
-              const json = await res.json();
-              resolve(json);
-              return;
+              // Write action: Try POST first, fallback to GET query with payload
+              try {
+                const res = await fetch(apiUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                  body: JSON.stringify({ action: fnName, args: args[0] || {} }),
+                  redirect: 'follow'
+                });
+                const json = await res.json();
+                if (json) {
+                  resolve(json);
+                  return;
+                }
+              } catch (postErr) {
+                console.warn('[API Bridge] POST failed, attempting GET query fallback:', postErr);
+                const params = new URLSearchParams();
+                params.append('action', fnName);
+                if (args[0]) {
+                  params.append('payload', JSON.stringify(args[0]));
+                }
+                const fallbackUrl = apiUrl + (apiUrl.includes('?') ? '&' : '?') + params.toString();
+                const resGet = await fetch(fallbackUrl, { method: 'GET', redirect: 'follow' });
+                const jsonGet = await resGet.json();
+                resolve(jsonGet);
+                return;
+              }
             }
           } catch (err) {
             console.warn('[API Bridge] Fetch failed, falling back to local mock:', err);
@@ -452,14 +505,14 @@
         return {
           success: true,
           data: [
-            { ID: 'K001', Nama: 'Wayan Arta', Tipe: 'STAFF', Departemen: 'Housekeeping Lead', Inisial: 'WA' },
-            { ID: 'K002', Nama: 'Ketut Arya', Tipe: 'DW', Departemen: 'Engineering & Pool', Inisial: 'KA' },
-            { ID: 'K003', Nama: 'Made Sujana', Tipe: 'STAFF', Departemen: 'Butler Service', Inisial: 'MS' },
-            { ID: 'K004', Nama: 'Ni Made Sunari', Tipe: 'STAFF', Departemen: 'Housekeeping', Inisial: 'NS' },
-            { ID: 'K005', Nama: 'Gede Rai', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GR' },
-            { ID: 'K006', Nama: 'I Putu Widana', Tipe: 'STAFF', Departemen: 'Engineering', Inisial: 'PW' },
-            { ID: 'K007', Nama: 'I Gede Dharma', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GD' },
-            { ID: 'K008', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Duty Leader', Inisial: 'KA' }
+            { ID: 'KAR-ENG-001', Nama: 'I Putu Widana', Tipe: 'STAFF', Departemen: 'Engineering AC & Chiller', Inisial: 'IPW' },
+            { ID: 'KAR-ENG-002', Nama: 'Ketut Arya', Tipe: 'STAFF', Departemen: 'Engineering Listrik & Genset', Inisial: 'KTA' },
+            { ID: 'KAR-ENG-003', Nama: 'I Nyoman Bagiarta', Tipe: 'STAFF', Departemen: 'Engineering Plumbing & Pump', Inisial: 'INB' },
+            { ID: 'KAR-ENG-004', Nama: 'Gede Rai', Tipe: 'STAFF', Departemen: 'Engineering Kolam & Filter', Inisial: 'GDR' },
+            { ID: 'KAR-ENG-005', Nama: 'I Made Sujana', Tipe: 'STAFF', Departemen: 'Engineering Civil & Finishing', Inisial: 'IMS' },
+            { ID: 'KAR-ENG-006', Nama: 'I Komang Wirajaya', Tipe: 'DW', Departemen: 'Engineering Asisten AC', Inisial: 'IKW' },
+            { ID: 'KAR-ENG-007', Nama: 'I Wayan Sudarsana', Tipe: 'DW', Departemen: 'Engineering Asisten Listrik', Inisial: 'IWS' },
+            { ID: 'KAR-ENG-008', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Duty Leader Engineering', Inisial: 'KDA' }
           ]
         };
       }
@@ -467,18 +520,23 @@
         return {
           success: true,
           data: [
-            { ID: 'SOP-01', Nama: 'Deep Cleaning Villa Suite', Kategori: 'Housekeeping', Estimasi_Mnt: 90, Poin: 10, Icon: 'bed', Checklist: 'Checklist VIP Suite 12 item' },
-            { ID: 'SOP-02', Nama: 'Perawatan Kolam & Water Filter', Kategori: 'Pool', Estimasi_Mnt: 45, Poin: 10, Icon: 'pool', Checklist: 'Uji pH 7.2 - 7.6 & Skimmer' },
-            { ID: 'SOP-03', Nama: 'Inspeksi Suhu AC & Freon Suite', Kategori: 'Engineering', Estimasi_Mnt: 60, Poin: 8, Icon: 'ac_unit', Checklist: 'Thermal Gun Scan filter' },
-            { ID: 'SOP-04', Nama: 'Turndown & Aromatherapy Refill', Kategori: 'Housekeeping', Estimasi_Mnt: 45, Poin: 10, Icon: 'spa', Checklist: 'Linen spray & floral bath' },
-            { ID: 'SOP-05', Nama: 'Blowing Daun & Garden Cleanup', Kategori: 'Garden', Estimasi_Mnt: 40, Poin: 8, Icon: 'yard', Checklist: 'Area tebing & kolam utama' }
+            { ID: 'SOP-ENG-001', Nama: 'Inspeksi & Cuci Filter AC Villa Suite', Kategori: 'AC & HVAC', Estimasi_Mnt: 45, Poin: 10, Icon: 'ac_unit', Checklist: 'Cuci filter indoor|Cek remote & display|Ukur temperatur hembusan' },
+            { ID: 'SOP-ENG-002', Nama: 'Pengecekan Panel Listrik & Beban MCB', Kategori: 'Kelistrikan', Estimasi_Mnt: 30, Poin: 10, Icon: 'bolt', Checklist: 'Scan suhu MCB|Test ground & netral|Cek switch lampu taman' },
+            { ID: 'SOP-ENG-003', Nama: 'Perawatan Pompa Kolam & Backwash Sand Filter', Kategori: 'Pool System', Estimasi_Mnt: 45, Poin: 10, Icon: 'pool', Checklist: 'Backwash filter|Rinse filter|Bersihkan strainer basket' },
+            { ID: 'SOP-ENG-004', Nama: 'Inspeksi Solar Water Heater & Tekanan Air', Kategori: 'Plumbing', Estimasi_Mnt: 35, Poin: 10, Icon: 'hot_tub', Checklist: 'Ukur suhu air panas (min 45°C)|Periksa safety valve|Cek booster pump' },
+            { ID: 'SOP-ENG-005', Nama: 'Preventive Maintenance Genset & Level Solar', Kategori: 'Genset & Power', Estimasi_Mnt: 40, Poin: 10, Icon: 'power', Checklist: 'Cek level solar (min 80%)|Cek level oli|Running test tanpa beban 10 mnt' },
+            { ID: 'SOP-ENG-006', Nama: 'Pengujian Kualitas Air Kolam (pH & Klorin)', Kategori: 'Pool System', Estimasi_Mnt: 30, Poin: 8, Icon: 'science', Checklist: 'Sampling air kolam|Test pH 7.2-7.6|Test Klorin 1.5-3.0 ppm' },
+            { ID: 'SOP-ENG-007', Nama: 'Pengecekan Lampu Underwater & Garden Spot', Kategori: 'Kelistrikan', Estimasi_Mnt: 35, Poin: 8, Icon: 'lightbulb', Checklist: 'Cek lampu underwater 12V|Pastikan kedap air|Cek lampu taman' },
+            { ID: 'SOP-ENG-008', Nama: 'Perbaikan Kunci Smartlock, Engsel & Pintu Villa', Kategori: 'Civil & Hardware', Estimasi_Mnt: 40, Poin: 8, Icon: 'lock', Checklist: 'Cek baterai smartlock|Lumasi sliding door|Cek grendel jendela' },
+            { ID: 'SOP-ENG-009', Nama: 'Pembersihan Grease Trap & Saluran Drainase', Kategori: 'Plumbing', Estimasi_Mnt: 50, Poin: 10, Icon: 'plumbing', Checklist: 'Buka grease trap|Angkat kerak lemak|Siram air panas|Cek drainase' },
+            { ID: 'SOP-ENG-010', Nama: 'Inspeksi Audio-Visual & Smart TV Villa VIP', Kategori: 'Audio Visual', Estimasi_Mnt: 30, Poin: 8, Icon: 'tv', Checklist: 'Nyalakan Smart TV & Wi-Fi|Test bluetooth soundbar|Rapikan kabel' }
           ]
         };
       }
       if (fnName === 'getShiftSummaryText') {
         return {
           success: true,
-          data: `*RINGKASAN OPERASIONAL SHIFT PAGI - AGRANUSA VILLA*\n📅 Tanggal: ${AppState.tanggal}\n⏰ Shift: ${AppState.shift}\n👤 Duty Leader: ${AppState.currentUser.nama}\n-------------------------------\n• Total Tugas: 48 (32 Staff, 16 DW)\n• Selesai: 34 (+340 pts)\n• Lanjut: 10 (+80 pts)\n• Batal: 4 (-40 pts)\n• Total Poin Tim: +400 pts (Progres 90%)\n-------------------------------\nLaporan resmi Sistem Monitoring Agranusa.`
+          data: `*RINGKASAN OPERASIONAL SHIFT PAGI - AGRANUSA VILLA (ENGINEERING)*\n📅 Tanggal: ${AppState.tanggal}\n⏰ Shift: ${AppState.shift}\n👤 Duty Leader: ${AppState.currentUser.nama}\n-------------------------------\n• Total Tugas Engineering: 5\n• Selesai: 2 (+20 pts)\n• Lanjut: 1 (+8 pts)\n• Pending: 2 (0 pts)\n• Total Poin Tim: +28 pts\n-------------------------------\nLaporan resmi Divisi Engineering Agranusa Signature Villa.`
         };
       }
       return { success: true, data: {} };
@@ -503,10 +561,26 @@
         showToast('URL Google Apps Script tersimpan!', 'success');
       } else {
         localStorage.removeItem('agranusa_gas_api_url');
-        showToast('Menggunakan Mode Demo Data', 'info');
+        showToast('Menggunakan Mode Demo Engineering', 'info');
       }
+      checkSettingsVisibility();
       closeSettingsModal();
       navigateTo(AppState.currentPage);
+    }
+    async function syncInitializeEngineeringSheets() {
+      showToast('Menginisialisasi sheet Engineering...', 'info');
+      try {
+        const res = await gasRun('initializeSheets');
+        if (res && res.success) {
+          showToast('Data Sheet Engineering berhasil diinisialisasi!', 'success', 4000);
+          closeSettingsModal();
+          navigateTo(AppState.currentPage);
+        } else {
+          showToast('Gagal inisialisasi: ' + (res?.error || 'Periksa koneksi'), 'error');
+        }
+      } catch (err) {
+        showToast('Gagal: ' + err.message, 'error');
+      }
     }
     async function testGasConnection() {
       const input = document.getElementById('gas-url-input');
@@ -532,7 +606,7 @@
         const json = await res.json();
         if (json && json.success) {
           const count = Array.isArray(json.data) ? json.data.length : 8;
-          showToast(`Koneksi Sukses! Terbaca ${count} staf.`, 'success');
+          showToast(`Koneksi Sukses! Terbaca ${count} staf Engineering.`, 'success');
           return;
         }
       } catch (err1) {
@@ -633,6 +707,9 @@
 
     /* ── App Initialization ── */
     document.addEventListener('DOMContentLoaded', async () => {
+      // 0. Update Settings Button Visibility
+      checkSettingsVisibility();
+
       // 1. Register Service Worker for PWA Builder
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
@@ -765,8 +842,8 @@
               <span>${d.shift?.tanggal || AppState.tanggal}</span>
             </div>
           </div>
-          <h1 class="font-headline-lg-mobile text-[18px] text-[#0b1c30] font-bold">Selamat Pagi, ${d.leader?.nama || 'Pak Wayan'}! 👋</h1>
-          <p class="font-body-sm text-[12px] text-slate-500 mt-0.5">Operasional 14 Unit Private Pool Villa terjadwal optimal.</p>
+          <h1 class="font-headline-lg-mobile text-[18px] text-[#0b1c30] font-bold">Selamat Bertugas, ${d.leader?.nama || 'Kadek Agus'}! ⚡</h1>
+          <p class="font-body-sm text-[12px] text-slate-500 mt-0.5">Operasional Engineering 14 Unit Private Pool Villa terjadwal optimal.</p>
           <div class="grid grid-cols-2 gap-2 pt-3">
             <button onclick="copyShiftSummary()" class="flex items-center justify-center gap-1.5 h-10 px-3 rounded-lg bg-[#ffddb0] text-[#281800] font-label-md text-[12px] font-bold active:scale-[0.98] transition-all shadow-sm">
               <span class="material-symbols-rounded text-[16px]">chat</span> Salin WA Shift
@@ -964,19 +1041,18 @@
     return {
       success: true,
       data: {
-        leader: { nama: 'Pak Wayan', inisial: 'PW' },
-        shift: { nama: 'Pagi', tanggal: '2024-10-24', jamMulai: '07:00', jamSelesai: '15:00' },
-        progress: { qcSelesai: 25, qcTotal: 28, pctQC: 90 },
-        kpiMatrix: { totalTugas: 48, totalStaff: 32, totalDW: 16, selesai: 34, lanjut: 10, tertunda: 4, belumDinilai: 0 },
-        poin: { total: 400 },
+        leader: { nama: 'Kadek Agus', inisial: 'KA' },
+        shift: { nama: AppState.shift || 'Pagi', tanggal: AppState.tanggal, jamMulai: '07:00', jamSelesai: '15:00' },
+        progress: { qcSelesai: 2, qcTotal: 3, pctQC: 67 },
+        kpiMatrix: { totalTugas: 5, totalStaff: 4, totalDW: 1, selesai: 2, lanjut: 1, tertunda: 0, belumDinilai: 2 },
+        poin: { total: 28 },
         perhatian: [
-          { id: '1', nama: 'Ganti Duvet & Linen VIP Villa 04', karyawan: 'Ketut Arya', tipeKaryawan: 'STAFF', status: 'Lanjut', alasan: 'Stok Linen Premium Habis di Bin 02', villa: 'Villa 04', departemen: 'Housekeeping' },
-          { id: '2', nama: 'Pembersihan Balcony Jacuzzi Villa 09', karyawan: 'I Gede Dharma', tipeKaryawan: 'DW', status: 'Batal', alasan: 'Tamu Pasang DND (Do Not Disturb)', villa: 'Villa 09', departemen: 'Pool & Garden' }
+          { id: 'TGS-ENG-005', nama: 'Pengecekan Lampu Underwater & Garden Spot', karyawan: 'I Wayan Sudarsana', tipeKaryawan: 'DW', status: 'Lanjut', alasan: 'Menunggu bohlam cadangan dari store', villa: 'Villa 07', departemen: 'Engineering Listrik' }
         ],
         topPerformer: [
-          { rank: 1, nama: 'Ketut Arya', poin: 90, selesai: 9, onTimePct: 100 },
-          { rank: 2, nama: 'Ni Made Sunari', poin: 88, selesai: 8, onTimePct: 98 },
-          { rank: 3, nama: 'Gede Rai', poin: 78, selesai: 8, onTimePct: 92 }
+          { rank: 1, nama: 'Ketut Arya', poin: 10, selesai: 1, onTimePct: 100 },
+          { rank: 2, nama: 'Gede Rai', poin: 10, selesai: 1, onTimePct: 100 },
+          { rank: 3, nama: 'I Wayan Sudarsana', poin: 8, selesai: 0, onTimePct: 90 }
         ]
       }
     };
@@ -1118,21 +1194,90 @@
   };
 
   window.MonState = {
-    tasks: [
-      { id: 't1', namaKaryawan: 'Gede Rai', tipeKaryawan: 'DW', namaTugas: 'Blowing Daun & Pool Skimming', villa: 'Area Pool & Garden', status: 'Belum Dinilai', jam: '10:00 - 12:00', fotoCount: 1 },
-      { id: 't2', namaKaryawan: 'Ketut Arya', tipeKaryawan: 'DW', namaTugas: 'Deep Cleaning Suite Bedroom', villa: 'Villa 04', status: 'Lanjut', poinDiperoleh: 8, jam: '08:30 - 11:30', alasan: 'Barang Habis - Menunggu dropping Linen' },
-      { id: 't3', namaKaryawan: 'Ni Made Sunari', tipeKaryawan: 'STAFF', namaTugas: 'Turndown & Aromatherapy Refill', villa: 'Villa 03', status: 'Selesai', poinDiperoleh: 10, jam: '13:00 - 13:45' },
-      { id: 't4', namaKaryawan: 'I Putu Widana', tipeKaryawan: 'STAFF', namaTugas: 'Inspeksi Saluran AC Sentral', villa: 'Villa 06', status: 'Batal', poinDiperoleh: -10, jam: '11:00 - 12:30', alasan: 'Waktu / Dialihkan Urgent ke genset' }
-    ],
+    tasks: [],
     selectedTaskId: null,
 
-    init() {
+    async init() {
+      const container = document.getElementById('mon-task-feed');
+      if (container) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
+            <span class="material-symbols-rounded animate-spin text-[26px] text-[#feb63c]">sync</span>
+            <p class="font-title-sm text-[12px] font-semibold text-slate-700 mt-2">Sinkronisasi tugas Engineering dari Google Sheet...</p>
+          </div>
+        `;
+      }
+
+      try {
+        const res = await gasRun('getShiftTasks', AppState.tanggal, AppState.shift);
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          this.tasks = res.data.map(t => ({
+            id: t['ID'] || t.id,
+            namaKaryawan: t['Nama_Karyawan'] || t.namaKaryawan || 'Teknisi Engineering',
+            tipeKaryawan: t['Tipe_Karyawan'] || t.tipeKaryawan || 'STAFF',
+            namaTugas: t['Nama_Tugas'] || t.namaTugas || 'Tugas Engineering',
+            villa: t['Villa'] || t.villa || 'Villa',
+            status: (t['Status'] === 'Pending' || !t['Status']) ? 'Belum Dinilai' : t['Status'],
+            poinDiperoleh: Number(t['Poin_Diperoleh']) || 0,
+            alasan: t['Alasan'] || '',
+            jam: t['Waktu_Mulai'] ? `${t['Waktu_Mulai']} - ${t['Waktu_Selesai'] || 'Sekarang'}` : 'Shift ' + AppState.shift,
+            fotoCount: 0
+          }));
+        } else if (res && res.success && Array.isArray(res.data) && res.data.length === 0) {
+          this.tasks = [];
+        } else {
+          this.tasks = this.getEngineeringDefaultTasks();
+        }
+      } catch (err) {
+        console.warn('Load tasks error:', err);
+        this.tasks = this.getEngineeringDefaultTasks();
+      }
+
       this.renderTasks();
+      this.updateRibbon();
+    },
+
+    getEngineeringDefaultTasks() {
+      return [
+        { id: 'TGS-ENG-001', namaKaryawan: 'I Putu Widana', tipeKaryawan: 'STAFF', namaTugas: 'Inspeksi & Cuci Filter AC Villa Suite', villa: 'Villa 02', status: 'Belum Dinilai', poinDiperoleh: 0, jam: '08:00 - 09:30', alasan: '' },
+        { id: 'TGS-ENG-002', namaKaryawan: 'Ketut Arya', tipeKaryawan: 'STAFF', namaTugas: 'Pengecekan Panel Listrik & Beban MCB', villa: 'Villa 05', status: 'Selesai', poinDiperoleh: 10, jam: '09:30 - 10:15', alasan: '' },
+        { id: 'TGS-ENG-003', namaKaryawan: 'Gede Rai', tipeKaryawan: 'STAFF', namaTugas: 'Perawatan Pompa Kolam & Backwash Sand Filter', villa: 'Villa Suite 01', status: 'Selesai', poinDiperoleh: 10, jam: '10:00 - 11:00', alasan: '' },
+        { id: 'TGS-ENG-004', namaKaryawan: 'I Nyoman Bagiarta', tipeKaryawan: 'STAFF', namaTugas: 'Inspeksi Solar Water Heater & Tekanan Air', villa: 'Villa 04', status: 'Belum Dinilai', poinDiperoleh: 0, jam: '11:00 - 11:45', alasan: '' },
+        { id: 'TGS-ENG-005', namaKaryawan: 'I Wayan Sudarsana', tipeKaryawan: 'DW', namaTugas: 'Pengecekan Lampu Underwater & Garden Spot', villa: 'Villa 07', status: 'Lanjut', poinDiperoleh: 8, jam: '13:00 - 14:00', alasan: 'Menunggu bohlam cadangan dari store' }
+      ];
+    },
+
+    updateRibbon() {
+      const total = this.tasks.length;
+      const belum = this.tasks.filter(t => t.status === 'Belum Dinilai' || t.status === 'Pending').length;
+      const inputCount = total - belum;
+      const totalPoin = this.tasks.reduce((sum, t) => sum + (t.poinDiperoleh || 0), 0);
+
+      const elInput = document.getElementById('mon-stat-input');
+      const elReview = document.getElementById('mon-stat-review');
+      const elPoin = document.getElementById('mon-stat-poin');
+      if (elInput) elInput.textContent = `${inputCount}/${total}`;
+      if (elReview) elReview.textContent = String(belum);
+      if (elPoin) elPoin.textContent = (totalPoin >= 0 ? '+' : '') + totalPoin;
     },
 
     renderTasks() {
       const container = document.getElementById('mon-task-feed');
       if (!container) return;
+
+      if (this.tasks.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center bg-white rounded-xl border border-slate-200">
+            <span class="material-symbols-rounded text-slate-400 text-[36px]">assignment_late</span>
+            <p class="font-title-sm text-[13px] text-slate-700 mt-2 font-semibold">Belum Ada Tugas Shift Engineering</p>
+            <p class="font-body-sm text-[11px] text-slate-400 mt-1">Buat pembagian tugas shift hari ini di menu Penugasan.</p>
+            <button onclick="navigateTo('penugasan')" class="mt-4 px-4 py-2 bg-[#131b2e] text-white rounded-lg font-label-md text-xs font-semibold shadow-sm active:scale-95">
+              + Buat Penugasan Shift
+            </button>
+          </div>
+        `;
+        return;
+      }
 
       container.innerHTML = this.tasks.map(t => {
         const isBelum = t.status === 'Belum Dinilai';
@@ -1176,7 +1321,7 @@
             </div>
 
             <div class="mt-2 flex items-center justify-between pt-1">
-              <span class="font-label-xs text-[10px] text-slate-400">${t.fotoCount ? `📸 ${t.fotoCount} Foto Terlampir` : 'Standard Verified'}</span>
+              <span class="font-label-xs text-[10px] text-slate-400">${t.fotoCount ? `📸 ${t.fotoCount} Foto Terlampir` : 'Standard Engineering'}</span>
               <button onclick="MonState.openDrawer('${t.id}')" class="px-3 py-1 rounded-lg bg-[#131b2e] text-white font-label-md text-[11px] font-semibold shadow-sm active:scale-95 flex items-center gap-1 hover:bg-slate-800">
                 <span class="material-symbols-rounded text-[14px] text-[#ffddb0]">${isBelum ? 'assignment_turned_in' : 'edit'}</span>
                 <span>${isBelum ? 'Input Hasil' : 'Edit Nilai'}</span>
@@ -1218,12 +1363,18 @@
       }
       this.closeDrawer();
       this.renderTasks();
+      this.updateRibbon();
       showToast(`Penilaian disimpan: ${status} (${t?.poinDiperoleh > 0 ? '+' : ''}${t?.poinDiperoleh} pts)`, 'success');
 
       // Bridge call
       if (t) {
-        gasRun('updateTugasStatus', t.id, t.status, t.poinDiperoleh, t.alasan, AppState.currentUser.nama)
-          .catch(err => console.warn(err));
+        gasRun('updateTugasStatus', {
+          tugasId: t.id,
+          status: t.status,
+          poinDiperoleh: t.poinDiperoleh,
+          alasan: t.alasan,
+          validator: AppState.currentUser.nama
+        }).catch(err => console.warn(err));
       }
     }
   };
@@ -1413,22 +1564,27 @@ window.PenugasanManager = (function() {
   let draftTasks = []; // { id, templateId, namaTugas, sopId, villa, picId, picName, estimasiMnt, poinSOP }
 
   const fallbackKaryawan = [
-    { ID: 'K001', Nama: 'Wayan Arta', Tipe: 'STAFF', Departemen: 'Housekeeping Lead', Inisial: 'WA' },
-    { ID: 'K002', Nama: 'Ketut Arya', Tipe: 'DW', Departemen: 'Engineering & Pool', Inisial: 'KA' },
-    { ID: 'K003', Nama: 'Made Sujana', Tipe: 'STAFF', Departemen: 'Butler Service', Inisial: 'MS' },
-    { ID: 'K004', Nama: 'Ni Made Sunari', Tipe: 'STAFF', Departemen: 'Housekeeping', Inisial: 'NS' },
-    { ID: 'K005', Nama: 'Gede Rai', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GR' },
-    { ID: 'K006', Nama: 'I Putu Widana', Tipe: 'STAFF', Departemen: 'Engineering', Inisial: 'PW' },
-    { ID: 'K007', Nama: 'I Gede Dharma', Tipe: 'DW', Departemen: 'Pool & Garden', Inisial: 'GD' },
-    { ID: 'K008', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Duty Leader', Inisial: 'KA' },
+    { ID: 'KAR-ENG-001', Nama: 'I Putu Widana', Tipe: 'STAFF', Departemen: 'Engineering AC & Chiller', Inisial: 'IPW' },
+    { ID: 'KAR-ENG-002', Nama: 'Ketut Arya', Tipe: 'STAFF', Departemen: 'Engineering Listrik & Genset', Inisial: 'KTA' },
+    { ID: 'KAR-ENG-003', Nama: 'I Nyoman Bagiarta', Tipe: 'STAFF', Departemen: 'Engineering Plumbing & Pump', Inisial: 'INB' },
+    { ID: 'KAR-ENG-004', Nama: 'Gede Rai', Tipe: 'STAFF', Departemen: 'Engineering Kolam & Filter', Inisial: 'GDR' },
+    { ID: 'KAR-ENG-005', Nama: 'I Made Sujana', Tipe: 'STAFF', Departemen: 'Engineering Civil & Finishing', Inisial: 'IMS' },
+    { ID: 'KAR-ENG-006', Nama: 'I Komang Wirajaya', Tipe: 'DW', Departemen: 'Engineering Asisten AC', Inisial: 'IKW' },
+    { ID: 'KAR-ENG-007', Nama: 'I Wayan Sudarsana', Tipe: 'DW', Departemen: 'Engineering Asisten Listrik', Inisial: 'IWS' },
+    { ID: 'KAR-ENG-008', Nama: 'Kadek Agus', Tipe: 'STAFF', Departemen: 'Duty Leader Engineering', Inisial: 'KDA' },
   ];
 
   const fallbackTemplates = [
-    { ID: 'SOP-01', Nama: 'Deep Cleaning Villa Suite', Kategori: 'Housekeeping', Estimasi_Mnt: 90, Poin: 10, Icon: 'bed', Checklist: 'Checklist VIP Suite 12 item' },
-    { ID: 'SOP-02', Nama: 'Perawatan Kolam & Water Filter', Kategori: 'Pool', Estimasi_Mnt: 45, Poin: 10, Icon: 'pool', Checklist: 'Uji pH 7.2 - 7.6 & Skimmer' },
-    { ID: 'SOP-03', Nama: 'Inspeksi Suhu AC & Freon Suite', Kategori: 'Engineering', Estimasi_Mnt: 60, Poin: 8, Icon: 'ac_unit', Checklist: 'Thermal Gun Scan filter' },
-    { ID: 'SOP-04', Nama: 'Turndown & Aromatherapy Refill', Kategori: 'Housekeeping', Estimasi_Mnt: 45, Poin: 10, Icon: 'spa', Checklist: 'Linen spray & floral bath' },
-    { ID: 'SOP-05', Nama: 'Blowing Daun & Garden Cleanup', Kategori: 'Garden', Estimasi_Mnt: 40, Poin: 8, Icon: 'yard', Checklist: 'Area tebing & kolam utama' },
+    { ID: 'SOP-ENG-001', Nama: 'Inspeksi & Cuci Filter AC Villa Suite', Kategori: 'AC & HVAC', Estimasi_Mnt: 45, Poin: 10, Icon: 'ac_unit', Checklist: 'Cuci filter indoor|Cek remote & display|Ukur temperatur hembusan' },
+    { ID: 'SOP-ENG-002', Nama: 'Pengecekan Panel Listrik & Beban MCB', Kategori: 'Kelistrikan', Estimasi_Mnt: 30, Poin: 10, Icon: 'bolt', Checklist: 'Scan suhu MCB|Test ground & netral|Cek switch lampu taman' },
+    { ID: 'SOP-ENG-003', Nama: 'Perawatan Pompa Kolam & Backwash Sand Filter', Kategori: 'Pool System', Estimasi_Mnt: 45, Poin: 10, Icon: 'pool', Checklist: 'Backwash filter|Rinse filter|Bersihkan strainer basket' },
+    { ID: 'SOP-ENG-004', Nama: 'Inspeksi Solar Water Heater & Tekanan Air', Kategori: 'Plumbing', Estimasi_Mnt: 35, Poin: 10, Icon: 'hot_tub', Checklist: 'Ukur suhu air panas (min 45°C)|Periksa safety valve|Cek booster pump' },
+    { ID: 'SOP-ENG-005', Nama: 'Preventive Maintenance Genset & Level Solar', Kategori: 'Genset & Power', Estimasi_Mnt: 40, Poin: 10, Icon: 'power', Checklist: 'Cek level solar (min 80%)|Cek level oli|Running test tanpa beban 10 mnt' },
+    { ID: 'SOP-ENG-006', Nama: 'Pengujian Kualitas Air Kolam (pH & Klorin)', Kategori: 'Pool System', Estimasi_Mnt: 30, Poin: 8, Icon: 'science', Checklist: 'Sampling air kolam|Test pH 7.2-7.6|Test Klorin 1.5-3.0 ppm' },
+    { ID: 'SOP-ENG-007', Nama: 'Pengecekan Lampu Underwater & Garden Spot', Kategori: 'Kelistrikan', Estimasi_Mnt: 35, Poin: 8, Icon: 'lightbulb', Checklist: 'Cek lampu underwater 12V|Pastikan kedap air|Cek lampu taman' },
+    { ID: 'SOP-ENG-008', Nama: 'Perbaikan Kunci Smartlock, Engsel & Pintu Villa', Kategori: 'Civil & Hardware', Estimasi_Mnt: 40, Poin: 8, Icon: 'lock', Checklist: 'Cek baterai smartlock|Lumasi sliding door|Cek grendel jendela' },
+    { ID: 'SOP-ENG-009', Nama: 'Pembersihan Grease Trap & Saluran Drainase', Kategori: 'Plumbing', Estimasi_Mnt: 50, Poin: 10, Icon: 'plumbing', Checklist: 'Buka grease trap|Angkat kerak lemak|Siram air panas|Cek drainase' },
+    { ID: 'SOP-ENG-010', Nama: 'Inspeksi Audio-Visual & Smart TV Villa VIP', Kategori: 'Audio Visual', Estimasi_Mnt: 30, Poin: 8, Icon: 'tv', Checklist: 'Nyalakan Smart TV & Wi-Fi|Test bluetooth soundbar|Rapikan kabel' },
   ];
 
   const villaList = [
@@ -2073,58 +2229,100 @@ window.initPenugasan = function() {
 
 <script>
 window.QCManager = (function() {
-  let reports = [
-    {
-      id: 'QC-01',
-      villa: 'Villa 06',
-      tipeVilla: 'Family 3-Bedroom',
-      area: 'Pool Area',
-      waktuInspeksi: '09:42 WITA',
-      status: 'Menunggu Perbaikan',
-      judul: 'Pool Deck Licin & Daun Kering',
-      deskripsi: 'Residu lumut tipis di pinggir decking barat dekat sun lounger, berpotensi licin untuk tamu anak.',
-      picNama: 'Gede Rai',
-      picTipe: 'DW',
-      departemen: 'Housekeeping & Pool',
-      fotoCount: 2
-    },
-    {
-      id: 'QC-02',
-      villa: 'Villa Suite 02',
-      tipeVilla: 'VIP Honeymoon',
-      area: 'Master Bathroom',
-      waktuInspeksi: '10:15 WITA',
-      status: 'Dalam Perbaikan',
-      judul: 'Noda Kaca Shower & Partisi Cermin',
-      deskripsi: 'Bercak air kering (water spot) pada kaca partisi shower room dan cermin wastafel utama belum di-buffing.',
-      picNama: 'Wayan Arta',
-      picTipe: 'STAFF',
-      departemen: 'Senior Butler',
-      fotoCount: 1
-    },
-    {
-      id: 'QC-03',
-      villa: 'Villa 01',
-      tipeVilla: 'Deluxe Suite',
-      area: 'Living Pavilion',
-      waktuInspeksi: '08:30 WITA',
-      status: 'Selesai Diperbaiki',
-      judul: 'Penataan Amenities Kurang Lengkap',
-      deskripsi: 'Penyediaan set aromaterapi & artisan linen spray pada coffee table kini telah dilengkapi sesuai SOP.',
-      picNama: 'Ni Made Sunari',
-      picTipe: 'STAFF',
-      departemen: 'Housekeeping',
-      verifikator: 'Wayan Sudarma (Duty Lead)',
-      waktuVerifikasi: '10:05 WITA',
-      fotoCount: 1
-    }
-  ];
+  function getEngineeringDefaultQC() {
+    return [
+      {
+        id: 'QC-ENG-01',
+        villa: 'Villa 04',
+        tipeVilla: 'Pool Villa',
+        area: 'Living Pavilion',
+        waktuInspeksi: '09:15 WITA',
+        status: 'Menunggu Perbaikan',
+        judul: 'Suhu AC Drop / Kurang Dingin',
+        deskripsi: 'Suhu AC kamar utama tidak turun di bawah 26°C. Tekanan freon dan saringan indoor perlu diservis.',
+        picNama: 'I Putu Widana',
+        picTipe: 'STAFF',
+        departemen: 'Engineering AC & HVAC',
+        fotoCount: 1
+      },
+      {
+        id: 'QC-ENG-02',
+        villa: 'Villa 06',
+        tipeVilla: 'Family 3-Bedroom',
+        area: 'Pump Room',
+        waktuInspeksi: '10:30 WITA',
+        status: 'Dalam Perbaikan',
+        judul: 'Getaran Booster Pump & Bising',
+        deskripsi: 'Bantalan karet peredam pompa transfer air terlepas sehingga getaran pipa beresonansi ke kamar.',
+        picNama: 'I Nyoman Bagiarta',
+        picTipe: 'STAFF',
+        departemen: 'Engineering Plumbing & Pump',
+        fotoCount: 2
+      },
+      {
+        id: 'QC-ENG-03',
+        villa: 'Villa Suite 02',
+        tipeVilla: 'VIP Honeymoon',
+        area: 'Pool Area',
+        waktuInspeksi: '08:45 WITA',
+        status: 'Selesai Diperbaiki',
+        judul: 'Lampu Kolam Underwater Mati',
+        deskripsi: 'Penggantian bohlam LED 12V dan sealing silikon waterproof pada housing lampu bawah air selesai.',
+        picNama: 'Ketut Arya',
+        picTipe: 'STAFF',
+        departemen: 'Engineering Listrik & Genset',
+        verifikator: 'Kadek Agus (Duty Lead)',
+        waktuVerifikasi: '11:00 WITA',
+        fotoCount: 1
+      }
+    ];
+  }
 
+  let reports = getEngineeringDefaultQC();
   let currentFilter = 'all';
 
-  function init() {
+  async function init() {
     setupFilterButtons();
     populatePicDropdown();
+    
+    const container = document.getElementById('qc-card-feed');
+    if (container) {
+      container.innerHTML = `
+        <div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
+          <span class="material-symbols-rounded animate-spin text-[26px] text-[#feb63c]">sync</span>
+          <p class="font-title-sm text-[12px] font-semibold text-slate-700 mt-2">Sinkronisasi temuan QC Engineering dari Google Sheet...</p>
+        </div>
+      `;
+    }
+
+    try {
+      const res = await gasRun('getQCReports', AppState.tanggal, AppState.shift);
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        reports = res.data.map(q => ({
+          id: q['ID'] || q.id,
+          villa: q['Villa'] || q.villa,
+          tipeVilla: q['Tipe_Villa'] || 'Suite',
+          area: q['Area'] || 'Engineering Area',
+          kategori: q['Kategori'] || 'Maintenance',
+          waktuInspeksi: q['Waktu_Inspeksi'] || 'Shift Ini',
+          status: q['Status'] || 'Menunggu Perbaikan',
+          judul: q['Kategori'] ? 'Temuan: ' + q['Kategori'] : (q['Deskripsi'] || 'Temuan Engineering'),
+          deskripsi: q['Deskripsi'] || '',
+          picNama: q['PIC_Nama'] || 'Teknisi Engineering',
+          picTipe: 'STAFF',
+          departemen: 'Engineering',
+          fotoCount: 1
+        }));
+      } else if (res && res.success && Array.isArray(res.data) && res.data.length === 0) {
+        reports = [];
+      } else {
+        reports = getEngineeringDefaultQC();
+      }
+    } catch (err) {
+      console.warn('QC load error:', err);
+      reports = getEngineeringDefaultQC();
+    }
+
     renderFeed();
     updateStats();
   }
@@ -2405,14 +2603,14 @@ function _getKPIDemoData() {
     success: true,
     data: {
       leaderboard: [
-        { rank: 1, nama: 'Ketut Arya', tipe: 'STAFF', departemen: 'Housekeeping Lead', inisial: 'KA', selesai: 9, lanjut: 1, batal: 0, poin: 90, ontime_pct: 100, qc_flawless: 1 },
-        { rank: 2, nama: 'Ni Made Sunari', tipe: 'STAFF', departemen: 'Housekeeping', inisial: 'NS', selesai: 8, lanjut: 0, batal: 0, poin: 88, ontime_pct: 98, qc_flawless: 1 },
-        { rank: 3, nama: 'Gede Rai', tipe: 'DW', departemen: 'Pool & Garden', inisial: 'GR', selesai: 8, lanjut: 0, batal: 0, poin: 78, ontime_pct: 92, qc_flawless: 0 },
-        { rank: 4, nama: 'Wayan Arta', tipe: 'STAFF', departemen: 'Butler Service', inisial: 'WA', selesai: 5, lanjut: 1, batal: 0, poin: 58, ontime_pct: 90, qc_flawless: 0 },
-        { rank: 5, nama: 'I Gede Dharma', tipe: 'DW', departemen: 'Pool & Garden', inisial: 'GD', selesai: 4, lanjut: 0, batal: 1, poin: 30, ontime_pct: 80, qc_flawless: 0 },
+        { rank: 1, nama: 'Ketut Arya', tipe: 'STAFF', departemen: 'Engineering Listrik & Genset', inisial: 'KTA', selesai: 2, lanjut: 0, batal: 0, poin: 20, ontime_pct: 100, qc_flawless: 1 },
+        { rank: 2, nama: 'Gede Rai', tipe: 'STAFF', departemen: 'Engineering Kolam & Filter', inisial: 'GDR', selesai: 1, lanjut: 0, batal: 0, poin: 10, ontime_pct: 100, qc_flawless: 1 },
+        { rank: 3, nama: 'I Wayan Sudarsana', tipe: 'DW', departemen: 'Engineering Asisten Listrik', inisial: 'IWS', selesai: 0, lanjut: 1, batal: 0, poin: 8, ontime_pct: 90, qc_flawless: 0 },
+        { rank: 4, nama: 'I Putu Widana', tipe: 'STAFF', departemen: 'Engineering AC & Chiller', inisial: 'IPW', selesai: 0, lanjut: 0, batal: 0, poin: 0, ontime_pct: 100, qc_flawless: 0 },
+        { rank: 5, nama: 'I Nyoman Bagiarta', tipe: 'STAFF', departemen: 'Engineering Plumbing & Pump', inisial: 'INB', selesai: 0, lanjut: 0, batal: 0, poin: 0, ontime_pct: 100, qc_flawless: 0 },
       ],
-      teamStats: { totalPoin: 400, avgPoin: 80, totalSelesai: 34, totalQCFlawless: 2 },
-      shiftInfo: { tanggal: '2024-10-24', shift: 'Pagi', leader: 'Pak Wayan', status: 'aktif' }
+      teamStats: { totalPoin: 38, avgPoin: 7.6, totalSelesai: 3, totalQCFlawless: 2 },
+      shiftInfo: { tanggal: AppState.tanggal, shift: AppState.shift || 'Pagi', leader: 'Kadek Agus', status: 'aktif' }
     }
   };
 }
